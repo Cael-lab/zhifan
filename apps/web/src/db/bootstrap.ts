@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { PERSONAL_SQL } from "../server/personal-store";
 
 /**
  * Idempotent schema bootstrap, run by the app at startup. Self-hosted software
@@ -207,6 +208,7 @@ const hasColumn = (sqlite: Database.Database, table: string, name: string) =>
 
 function migrate(sqlite: Database.Database) {
   sqlite.exec(BOOTSTRAP_SQL);
+  sqlite.exec(PERSONAL_SQL);
   if (!hasColumn(sqlite, "folders", "deleted_at")) {
     sqlite.exec("ALTER TABLE folders ADD COLUMN deleted_at TEXT");
   }

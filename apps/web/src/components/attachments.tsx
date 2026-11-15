@@ -8,7 +8,7 @@ export function Attachments({
   type,
   id,
 }: {
-  type: "trade" | "day" | "note" | "missed" | "prop-account" | "prop-entry";
+  type: "trade" | "day" | "note" | "missed" | "prop-account" | "prop-entry" | "personal";
   id: string;
 }) {
   const { data, error, refresh } = useApi<{
