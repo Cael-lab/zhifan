@@ -817,26 +817,25 @@ function EmptyState() {
       <div className="flex flex-col items-center justify-center gap-3 px-4 py-24 text-center">
         <h2 className="text-xl font-semibold">开始记录你的第一笔交易</h2>
         <p className="max-w-md text-sm text-muted-foreground">
-          Connect a broker for automatic sync, upload a statement from 10+ platforms (including your
-          TradeZella export), or add trades manually.
+          创建交易账户后，可以手动录入成交、导入历史账单，或连接受支持的券商同步数据。
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Link
             href="/import"
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Import your first trades
+            导入或录入第一笔交易
           </Link>
           <button
             onClick={loadDemo}
             disabled={loadingDemo}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
           >
-            {loadingDemo ? "Loading…" : "Load demo data"}
+            {loadingDemo ? "正在加载…" : "体验示例交易"}
           </button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Demo data lands in its own account; delete it anytime under Accounts.
+          示例交易会放入独立账户，可随时在「交易账户」中删除。
         </p>
       </div>
     </div>

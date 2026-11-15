@@ -46,7 +46,7 @@ it("restores knowledge, cases, and exact image bytes and is idempotent", () => {
 it("rejects a corrupted image without importing any records", () => {
   fixture();
   const doc = exportPersonal(source);
-  doc.attachments[0].data = "ZmFrZQ==";
+  doc.attachments[0]!.data = "ZmFrZQ==";
   expect(() => importPersonal(target, doc)).toThrow("附件");
   expect(new PersonalStore(target).list()).toHaveLength(0);
 });

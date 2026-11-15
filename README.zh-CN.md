@@ -16,6 +16,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\start-zhifan.ps1 -Rebuild
 
 3000 端口被占用时可加 `-Port 3001`。脚本仅监听本机地址。没有配置云端发布或公网访问。
 
+Windows 使用 `next start` 运行生产构建，避免独立部署打包对符号链接权限的要求；其他系统保留上游的 standalone 构建。
+
 ## 建议使用顺序
 
 1. **交易账户**：先建立手动账户，或者使用原项目支持的导入/券商连接。
@@ -55,7 +57,7 @@ npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm dev
 npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm test
 npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm typecheck
 npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm format:check
-node scripts/check-licenses.mjs
+npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm exec node scripts/check-licenses.mjs
 ```
 
 执行浏览器测试时使用独立的 `JOURNAL_DATA_DIR`。已批准的设计源文件在 `docs/zhifan-preview/`；实际页面沿用原项目组件和布局，并非把静态图片嵌入网页。新增核心页面为中文；原项目部分高级设置、统计和录入控件仍为英文。
