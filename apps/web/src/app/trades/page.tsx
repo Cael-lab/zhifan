@@ -115,7 +115,7 @@ function Trades() {
       {
         id: "closedAt",
         accessorKey: "closedAt",
-        header: "Close date",
+        header: "平仓日期",
         cell: ({ getValue }) => (
           <span className="text-muted-foreground">
             {getValue<string | null>() ? dayKeyOf(getValue<string>(), timeZone) : "open"}
@@ -125,7 +125,7 @@ function Trades() {
       {
         id: "symbol",
         accessorKey: "symbol",
-        header: "Symbol",
+        header: "标的",
         cell: ({ row, getValue }) => (
           <span className="flex items-center gap-2 font-medium">
             {getValue<string>()}
@@ -136,7 +136,7 @@ function Trades() {
       {
         id: "status",
         accessorKey: "status",
-        header: "Status",
+        header: "状态",
         cell: ({ getValue }) => {
           const status = getValue<string>();
           return (
@@ -149,13 +149,13 @@ function Trades() {
       {
         id: "quantity",
         accessorKey: "quantity",
-        header: "Volume",
+        header: "数量",
         cell: ({ getValue }) => <span className="tnum">{fmtNumber(getValue<number>(), 4)}</span>,
       },
       {
         id: "avgEntry",
         accessorKey: "avgEntry",
-        header: "Entry",
+        header: "入场",
         cell: ({ getValue }) => (
           <span className="tnum">
             <MonetaryValue>{fmtNumber(getValue<number>())}</MonetaryValue>
@@ -165,7 +165,7 @@ function Trades() {
       {
         id: "avgExit",
         accessorKey: "avgExit",
-        header: "Exit",
+        header: "出场",
         cell: ({ getValue }) => (
           <span className="tnum">
             <MonetaryValue>
@@ -177,7 +177,7 @@ function Trades() {
       {
         id: "netPnl",
         accessorKey: "netPnl",
-        header: "Net P&L",
+        header: "净盈亏",
         cell: ({ getValue }) => <Pnl value={getValue<number>()} />,
       },
       {
@@ -186,7 +186,7 @@ function Trades() {
         sortUndefined: "last",
         sortDescFirst: true,
         sortFn: "basic",
-        header: "Net ROI",
+        header: "净收益率",
         cell: ({ getValue }) => (
           <span className="tnum">{fmtPercent(getValue<number | undefined>() ?? null, 2)}</span>
         ),
@@ -194,7 +194,7 @@ function Trades() {
       {
         id: "fees",
         accessorKey: "fees",
-        header: "Fees",
+        header: "费用",
         cell: ({ getValue }) => (
           <span className="tnum text-muted-foreground">
             <MonetaryValue>{fmtMoney(getValue<number>())}</MonetaryValue>
@@ -204,7 +204,7 @@ function Trades() {
       {
         id: "durationMs",
         accessorKey: "durationMs",
-        header: "Duration",
+        header: "持仓时间",
         cell: ({ getValue }) => (
           <span className="text-muted-foreground">{fmtDuration(getValue<number | null>())}</span>
         ),
@@ -212,7 +212,7 @@ function Trades() {
       {
         id: "executionCount",
         accessorKey: "executionCount",
-        header: "Execs",
+        header: "成交次数",
         cell: ({ getValue }) => (
           <span className="tnum text-muted-foreground">{getValue<number>()}</span>
         ),
@@ -221,7 +221,7 @@ function Trades() {
         id: "tags",
         accessorKey: "tags",
         enableSorting: false,
-        header: "Tags",
+        header: "标签",
         cell: ({ getValue }) => (
           <span className="flex max-w-40 flex-wrap gap-1">
             {getValue<string[]>().map((tag) => (
@@ -235,7 +235,7 @@ function Trades() {
       {
         id: "rating",
         accessorKey: "rating",
-        header: "Rating",
+        header: "评分",
         cell: ({ getValue }) => {
           const rating = getValue<number | null>();
           return (
@@ -248,7 +248,7 @@ function Trades() {
       {
         id: "reviewed",
         accessorKey: "reviewed",
-        header: "Reviewed",
+        header: "已复盘",
         cell: ({ getValue }) =>
           getValue<boolean>() ? (
             <Check className="h-4 w-4 text-profit" />
@@ -286,7 +286,7 @@ function Trades() {
   return (
     <div>
       <FilterBar
-        title="Trades"
+        title="交易记录"
         actions={
           <div className="flex items-center gap-2">
             <a href={`/api/export?format=csv&${query}`} download>
@@ -307,7 +307,7 @@ function Trades() {
           <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardHeader>
-                <CardTitle>Net cumulative P&L</CardTitle>
+                <CardTitle>累计净盈亏</CardTitle>
               </CardHeader>
               <CardContent>
                 <Pnl value={m.netPnl} className="text-xl font-semibold" />

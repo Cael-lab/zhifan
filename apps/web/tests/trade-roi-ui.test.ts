@@ -48,7 +48,7 @@ const render = async (overrides: Record<string, unknown>[]) => {
 };
 const roiValues = () => {
   const headers = [...container.querySelectorAll("thead th")];
-  const index = headers.findIndex((header) => header.textContent === "Net ROI");
+  const index = headers.findIndex((header) => header.textContent === "净收益率");
   return [...container.querySelectorAll("tbody tr")].map((row) => row.children[index]!.textContent);
 };
 
@@ -79,7 +79,7 @@ it("sorts numerical returns in both directions with unavailable returns last", a
     { avgEntry: 0 },
   ]);
   const sort = [...container.querySelectorAll<HTMLButtonElement>("thead button")].find(
-    (button) => button.textContent === "Net ROI",
+    (button) => button.textContent === "净收益率",
   )!;
   await act(async () => sort.click());
   expect(roiValues()).toEqual(["10.00%", "0.00%", "-10.00%", "–", "–"]);

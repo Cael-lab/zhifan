@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LuxAlgoMark } from "@/components/luxalgo-mark";
+import { ZhifanMark as LuxAlgoMark } from "@/components/zhifan-mark";
 import { PrivacyToggle } from "./privacy";
 import { ThemeToggle } from "./theme";
 import { PageTransition } from "./page-transition";
@@ -33,22 +33,23 @@ import { Button } from "./ui/button";
 import { HoverHint } from "./ui/tooltip";
 
 const NAV = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/journal", label: "Daily journal", icon: NotebookPen },
-  { href: "/trades", label: "Trades", icon: ListOrdered },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
-  { href: "/prop-firms", label: "Prop firms", icon: Landmark },
-  { href: "/notebook", label: "Notebook", icon: BookText },
-  { href: "/playbooks", label: "Playbooks", icon: BookOpen },
-  { href: "/progress", label: "Progress", icon: ListChecks },
-  { href: "/missed", label: "Missed trades", icon: BookmarkPlus },
+  { href: "/", label: "总览", icon: LayoutDashboard },
+  { href: "/trades", label: "交易记录", icon: ListOrdered },
+  { href: "/calendar", label: "交易日历", icon: CalendarDays },
+  { href: "/reports", label: "绩效报告", icon: BarChart3 },
+  { href: "/learning", label: "交易学习", icon: BookText },
+  { href: "/diary", label: "日记", icon: NotebookPen },
+  { href: "/journal", label: "每日交易复盘", icon: CalendarDays },
+  { href: "/playbooks", label: "策略清单", icon: BookOpen },
+  { href: "/progress", label: "执行习惯", icon: ListChecks },
+  { href: "/missed", label: "错过的机会", icon: BookmarkPlus },
 ] as const;
 
 const NAV_SETUP = [
-  { href: "/import", label: "Import", icon: Import },
-  { href: "/accounts", label: "Accounts", icon: Wallet },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/import", label: "导入与录入", icon: Import },
+  { href: "/accounts", label: "交易账户", icon: Wallet },
+  { href: "/personal-backup", label: "数据备份", icon: BookText },
+  { href: "/settings", label: "设置", icon: Settings },
 ] as const;
 
 const SIDEBAR_COLLAPSED_KEY = "journal-sidebar-collapsed-v1";
@@ -157,7 +158,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {NAV.map(({ href, label, icon }) => (
         <NavLink
           key={href}
-          href={href === "/prop-firms" ? href : filterQuery.size ? `${href}?${filterQuery}` : href}
+          href={filterQuery.size ? `${href}?${filterQuery}` : href}
           label={label}
           icon={icon}
           collapsed={collapsed}
@@ -180,17 +181,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const footer = (
     <div className="journal-sidebar-footer space-y-1 border-t p-3 text-xs text-muted-foreground">
       <div>
-        Open source ·{" "}
+        基于{" "}
         <a
           href="https://github.com/LuxAlgo/trade-journal"
           className="underline underline-offset-2 hover:text-foreground"
           target="_blank"
           rel="noreferrer"
         >
-          GitHub
+          LuxAlgo Trade Journal
         </a>
       </div>
-      <div>Not investment advice.</div>
+      <div>知返 · 个人交易与学习空间</div>
     </div>
   );
   return (
@@ -216,7 +217,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
                 <LuxAlgoMark className="h-[18px] w-5" />
                 <DialogPrimitive.Title className="text-sm font-semibold">
-                  Trade Journal
+                  知返
                 </DialogPrimitive.Title>
                 <DialogPrimitive.Close asChild>
                   <Button
@@ -242,7 +243,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           className="mr-auto flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight"
         >
           <LuxAlgoMark className="hidden h-4 w-[18px] shrink-0 min-[380px]:block" />
-          <span className="truncate">Trade Journal</span>
+          <span className="truncate">知返</span>
         </Link>
         <PrivacyToggle compact />
         <ThemeToggle iconOnly />
@@ -256,7 +257,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="journal-sidebar-home flex h-full min-w-0 items-center gap-2.5">
             <LuxAlgoMark className="h-[18px] w-5 shrink-0" />
             <span className="journal-sidebar-brand-label text-sm font-semibold tracking-tight">
-              Trade Journal
+              知返
             </span>
           </Link>
           <Button

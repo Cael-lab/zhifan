@@ -31,6 +31,7 @@ import {
 } from "@/server/settings";
 import { handler, ok } from "@/server/api";
 import { attachmentExportRecord, EXPORT_ATTACHMENTS_NOTE } from "@/lib/export-format";
+import { PersonalStore } from "@/server/personal-store";
 
 /**
  * Full data export: your journal is yours. Credentials are deliberately
@@ -78,6 +79,7 @@ export const GET = handler(async (request: Request) => {
 
   return ok({
     exportedAt: new Date().toISOString(),
+    personalEntries: new PersonalStore(db.$client).list(),
     note: EXPORT_ATTACHMENTS_NOTE,
     accounts: db
       .select()

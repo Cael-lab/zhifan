@@ -4,7 +4,8 @@ import { handler, ok, requireValue } from "@/server/api";
 import { newId, nowIso } from "@/server/ids";
 import { attachmentMime, MAX_ATTACHMENT_SIZE } from "@/lib/attachment-validation";
 function owner(type: string, id: string) {
-  if (type === "personal") return !!db.$client.prepare("SELECT id FROM personal_entries WHERE id = ?").get(id);
+  if (type === "personal")
+    return !!db.$client.prepare("SELECT id FROM personal_entries WHERE id = ?").get(id);
   if (type === "prop-account")
     return !!db
       .select({ id: propAccounts.id })

@@ -1,5 +1,4 @@
 import Database from "better-sqlite3";
-import { PERSONAL_SQL } from "../server/personal-store";
 
 /**
  * Idempotent schema bootstrap, run by the app at startup. Self-hosted software
@@ -199,6 +198,14 @@ CREATE TABLE IF NOT EXISTS import_batches (
  snapshot_json TEXT NOT NULL, created_at TEXT NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS import_batch_unique ON import_batches(account_id, format, fingerprint);
+CREATE TABLE IF NOT EXISTS personal_entries (
+ id TEXT PRIMARY KEY, kind TEXT NOT NULL,
+ parent_id TEXT REFERENCES personal_entries(id) ON DELETE CASCADE,
+ body TEXT NOT NULL, revision INTEGER NOT NULL DEFAULT 1,
+ created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS personal_kind ON personal_entries(kind, updated_at);
+CREATE INDEX IF NOT EXISTS personal_parent ON personal_entries(parent_id);
 `;
 
 const hasColumn = (sqlite: Database.Database, table: string, name: string) =>
@@ -208,7 +215,6 @@ const hasColumn = (sqlite: Database.Database, table: string, name: string) =>
 
 function migrate(sqlite: Database.Database) {
   sqlite.exec(BOOTSTRAP_SQL);
-  sqlite.exec(PERSONAL_SQL);
   if (!hasColumn(sqlite, "folders", "deleted_at")) {
     sqlite.exec("ALTER TABLE folders ADD COLUMN deleted_at TEXT");
   }

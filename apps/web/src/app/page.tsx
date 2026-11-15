@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PersonalOverview } from "@/components/personal-overview";
 import { Suspense, useState } from "react";
 import type {
   CalendarMonth,
@@ -98,7 +99,8 @@ function Dashboard() {
 
   return (
     <>
-      <FilterBar title="Dashboard" actions={<AddTradeDialog onSaved={refresh} />} />
+      <FilterBar title="我的交易工作台" actions={<AddTradeDialog onSaved={refresh} />} />
+      <PersonalOverview />
       <DashboardContent
         data={data}
         loading={loading}
@@ -150,7 +152,7 @@ function DashboardContent({
         <div className="grid gap-3 p-4 sm:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>All accounts</CardTitle>
+              <CardTitle>全部账户</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
               {closed} closed trades · {closed ? fmtPercent(wins / closed) : "–"} trade win rate
@@ -233,7 +235,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Net P&L"
+                  title="净盈亏"
                   icon={CircleDollarSign}
                   hint="Realized profit and loss net of fees, over the selected range."
                 />
@@ -273,7 +275,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Trade win %"
+                  title="交易胜率"
                   icon={Target}
                   hint="Winning trades divided by all closed trades, including breakevens."
                 />
@@ -296,7 +298,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Profit factor"
+                  title="盈利因子"
                   icon={Scale}
                   hint="Gross profit ÷ gross loss. Above 1 means the wins outweigh the losses."
                 />
@@ -323,7 +325,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Day win %"
+                  title="盈利日占比"
                   icon={CalendarCheck2}
                   hint="Green trading days ÷ all trading days in the selected range."
                 />
@@ -342,7 +344,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Avg win / loss"
+                  title="平均盈利 / 平均亏损"
                   icon={ArrowUpDown}
                   hint="Average winning trade ÷ average losing trade. The bar shows the two to scale."
                 />
@@ -440,7 +442,7 @@ function DashboardContent({
             content: (
               <Card className="dashboard-visual-card h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>Daily net cumulative P&L</CardTitle>
+                  <CardTitle>每日累计净盈亏</CardTitle>
                   <HelpHint heading="Cumulative P&L">
                     Running total of net profit and loss over the selected period. The drawdown bars
                     below show declines from the running equity peak.
@@ -466,7 +468,7 @@ function DashboardContent({
             content: (
               <Card className="dashboard-visual-card h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>Net daily P&L</CardTitle>
+                  <CardTitle>每日净盈亏</CardTitle>
                   <HelpHint heading="Daily P&L">
                     Net profit or loss for each trading day. Bars above zero are profitable; bars
                     below zero are losses.
@@ -522,7 +524,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <CardHeader>
-                  <CardTitle>Activity</CardTitle>
+                  <CardTitle>交易动态</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="recent">
@@ -600,7 +602,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Max drawdown"
+                  title="最大回撤"
                   icon={TrendingDown}
                   hint="Largest peak-to-trough drop of the cumulative P&L curve."
                 />
@@ -626,7 +628,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Streaks"
+                  title="连续盈亏"
                   icon={Flame}
                   hint="Current run of consecutive wins (W) or losses (L), with the best and worst runs."
                 />
@@ -653,7 +655,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Expectancy / trade"
+                  title="每笔期望收益"
                   icon={Sigma}
                   hint="Average net P&L per closed trade: what one more trade is worth on your numbers."
                 />
@@ -684,7 +686,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Avg duration"
+                  title="平均持仓时间"
                   icon={Timer}
                   hint="Average time from first entry fill to final exit."
                 />
@@ -705,7 +707,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="Best / worst day"
+                  title="最佳 / 最差交易日"
                   icon={Trophy}
                   hint="Highest and lowest single-day net P&L in the selected range."
                 />
@@ -744,7 +746,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>Trade time performance</CardTitle>
+                  <CardTitle>交易时段表现</CardTitle>
                   <HelpHint heading="Trade time performance">
                     Trades grouped by their opening hour. The upper chart shows net P&L; the lower
                     chart shows trade count.
@@ -813,7 +815,7 @@ function EmptyState() {
   return (
     <div>
       <div className="flex flex-col items-center justify-center gap-3 px-4 py-24 text-center">
-        <h2 className="text-xl font-semibold">Your journal is empty</h2>
+        <h2 className="text-xl font-semibold">开始记录你的第一笔交易</h2>
         <p className="max-w-md text-sm text-muted-foreground">
           Connect a broker for automatic sync, upload a statement from 10+ platforms (including your
           TradeZella export), or add trades manually.

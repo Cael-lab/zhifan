@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { LuxAlgoMark } from "@/components/luxalgo-mark";
+import { ZhifanMark as LuxAlgoMark } from "@/components/zhifan-mark";
 import { postJson } from "@/lib/use-api";
 
 export default function LoginPage() {
@@ -31,7 +31,7 @@ export default function LoginPage() {
           <form onSubmit={submit} className="space-y-3">
             <div className="text-center">
               <LuxAlgoMark className="mx-auto mb-2 h-6 w-7" />
-              <h1 className="text-sm font-semibold">Trade Journal</h1>
+              <h1 className="text-sm font-semibold">知返</h1>
             </div>
             <Input
               type="password"

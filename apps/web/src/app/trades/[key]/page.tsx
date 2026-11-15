@@ -1,5 +1,6 @@
 "use client";
 import { AiNotice } from "@/components/ai-notice";
+import { TradeLearning } from "@/components/trade-learning";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
@@ -164,6 +165,9 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
     <div>
       <FilterBar title={`${trade.symbol} · ${trade.direction.toUpperCase()}`} />
       <TradeNavigation tradeKey={tradeKey} />
+      <div className="px-4 pt-4">
+        <TradeLearning tradeKey={tradeKey} symbol={trade.symbol} />
+      </div>
       <div className="grid gap-3 p-4 xl:grid-cols-3">
         <div className="min-w-0 space-y-3 xl:col-span-2">
           <Card>
@@ -180,23 +184,23 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
               >
                 {trade.status.toUpperCase()}
               </Badge>
-              <Meta label="Gross" value={fmtMoney(trade.grossPnl)} monetary />
-              <Meta label="Fees" value={fmtMoney(trade.fees)} monetary />
-              <Meta label="Volume" value={fmtNumber(trade.quantity, 4)} />
-              <Meta label="Avg entry" value={fmtNumber(trade.avgEntry)} monetary />
+              <Meta label="毛盈亏" value={fmtMoney(trade.grossPnl)} monetary />
+              <Meta label="费用" value={fmtMoney(trade.fees)} monetary />
+              <Meta label="数量" value={fmtNumber(trade.quantity, 4)} />
+              <Meta label="平均入场价" value={fmtNumber(trade.avgEntry)} monetary />
               <Meta
-                label="Avg exit"
+                label="平均出场价"
                 monetary
                 value={trade.avgExit === null ? "open" : fmtNumber(trade.avgExit)}
               />
-              <Meta label="Duration" value={fmtDuration(trade.durationMs)} />
-              <Meta label="Net / entry notional" value={fmtPercent(netReturnOnEntry(trade), 2)} />
+              <Meta label="持仓时间" value={fmtDuration(trade.durationMs)} />
+              <Meta label="净收益 / 入场名义金额" value={fmtPercent(netReturnOnEntry(trade), 2)} />
               <Meta
-                label="Planned R"
+                label="计划盈亏比"
                 value={trade.plannedR === null ? "–" : `${fmtNumber(trade.plannedR)}R`}
               />
               <Meta
-                label="Realized R"
+                label="实际结果 R"
                 value={trade.realizedR === null ? "–" : `${fmtNumber(trade.realizedR)}R`}
               />
             </CardContent>
@@ -207,7 +211,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
           {runningPnl.length > 1 && (
             <Card>
               <CardHeader>
-                <CardTitle>Running P&L</CardTitle>
+                <CardTitle>持仓盈亏过程</CardTitle>
                 <p className="text-xs text-muted-foreground">Times in {timeZone}</p>
               </CardHeader>
               <CardContent>
@@ -218,7 +222,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>Executions</CardTitle>
+              <CardTitle>成交明细</CardTitle>
               <p className="text-xs text-muted-foreground">Times in {timeZone}</p>
             </CardHeader>
             <CardContent>
@@ -265,7 +269,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
           <RuleChecklist tradeKey={trade.key} playbookId={trade.playbookId} />
           <Card>
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>AI review</CardTitle>
+              <CardTitle>AI 复盘</CardTitle>
               <Button variant="outline" size="sm" onClick={askCritique} disabled={aiBusy}>
                 <Sparkles />
                 {aiBusy ? "Thinking…" : "Critique this trade"}
@@ -344,7 +348,7 @@ function AnnotationsCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Journal this trade</CardTitle>
+        <CardTitle>交易备注与评价</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between">

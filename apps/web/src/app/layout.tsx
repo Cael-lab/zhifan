@@ -8,14 +8,13 @@ import { ThemeProvider } from "@/components/theme";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
-  title: "Trade Journal",
-  description:
-    "The open-source trade journal — broker sync, deep analytics, daily journaling, and AI-native reflection. Self-hosted, free forever.",
+  title: "知返 · 交易与学习",
+  description: "个人交易复盘、知识点案例库与日记。基于 LuxAlgo Trade Journal，本机保存。",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="zh-CN" className="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
