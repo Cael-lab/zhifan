@@ -43,7 +43,9 @@ export class PersonalStore {
       .all() as { id: string; owner_id: string }[];
     return rows.map((r) => ({
       ...decode(r),
-      coverId: images.find((a) => a.owner_id === r.id)?.id,
+      coverId:
+        images.find((a) => a.owner_id === r.id)?.id ??
+        images.find((a) => rows.some((c) => c.parent_id === r.id && c.id === a.owner_id))?.id,
       attachmentCount: images.filter((a) => a.owner_id === r.id).length,
       caseCount: rows.filter((c) => c.parent_id === r.id).length,
     }));

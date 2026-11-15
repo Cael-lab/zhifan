@@ -60,3 +60,25 @@ it("never overwrites an edited record with an older backup", () => {
   importPersonal(target, doc);
   expect(store.get(p.id)?.title).toBe("新标题");
 });
+
+it("restores review completion only when the corresponding trade exists", () => {
+  const insert = `INSERT INTO trades
+    (key,account_id,symbol,direction,status,opened_at,quantity,open_quantity,avg_entry,
+     gross_pnl,fees,net_pnl,execution_count,execution_ids_json,exits_json)
+    VALUES ('trade','account','TEST','long','win','2026-11-13T01:00:00Z',1,0,100,4,2,2,2,'[]','[]')`;
+  source.prepare(insert).run();
+  const review = new PersonalStore(source).save({
+    ...emptyContent(),
+    kind: "review",
+    title: "已完成的交易复盘",
+    tradeKeys: ["trade"],
+  });
+  const doc = exportPersonal(source);
+  expect(importPersonal(target, doc)).toMatchObject({ imported: 0, skipped: 1, missingTrades: 1 });
+  target.prepare(insert).run();
+  expect(importPersonal(target, doc)).toMatchObject({ imported: 1, skipped: 0 });
+  expect(new PersonalStore(target).get(review.id)?.tradeKeys).toEqual(["trade"]);
+  expect(target.prepare("SELECT reviewed_at FROM trades").get()).toMatchObject({
+    reviewed_at: expect.any(String),
+  });
+});

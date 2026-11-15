@@ -165,9 +165,6 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
     <div>
       <FilterBar title={`${trade.symbol} · ${trade.direction.toUpperCase()}`} />
       <TradeNavigation tradeKey={tradeKey} />
-      <div className="px-4 pt-4">
-        <TradeLearning tradeKey={tradeKey} symbol={trade.symbol} />
-      </div>
       <div className="grid gap-3 p-4 xl:grid-cols-3">
         <div className="min-w-0 space-y-3 xl:col-span-2">
           <Card>
@@ -206,6 +203,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
             </CardContent>
           </Card>
 
+          <TradeLearning tradeKey={tradeKey} symbol={trade.symbol} />
           <TradeMarketData trade={trade} executions={executions} />
 
           {runningPnl.length > 1 && (

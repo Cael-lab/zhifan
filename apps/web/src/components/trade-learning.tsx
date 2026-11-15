@@ -4,6 +4,8 @@ import { useState } from "react";
 import { BookOpen, Plus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PersonalEditor } from "@/components/personal-workspace";
+import { PersonalMedia } from "@/components/personal-media";
+import { Markdown } from "@/components/rich-editor";
 import { useApi, postJson } from "@/lib/use-api";
 import { emptyContent, type PersonalEntry } from "@/lib/personal";
 
@@ -15,7 +17,11 @@ export function TradeLearning({ tradeKey, symbol }: { tradeKey: string; symbol: 
     [knowledge, setKnowledge] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const linked = entries.filter((e) => e.kind !== "review" && e.tradeKeys.includes(tradeKey));
+  const linked = entries.filter(
+    (e) =>
+      e.kind !== "review" &&
+      (e.tradeKeys.includes(tradeKey) || review?.knowledgeIds.includes(e.id)),
+  );
   async function addCase() {
     if (!knowledge) return;
     setBusy(true);
@@ -28,7 +34,7 @@ export function TradeLearning({ tradeKey, symbol }: { tradeKey: string; symbol: 
         title: `${symbol} · 交易案例`,
         symbol,
         content: review
-          ? `## 进场理由\n${review.entryReason}\n\n## 出场理由\n${review.exitReason}\n\n## 复盘与改进\n${review.improvement}`
+          ? `## 进场理由\n${review.entryReason}\n\n## 出场理由\n${review.exitReason}\n\n## 复盘与改进\n${review.improvement}\n\n${review.content}`
           : "记录此交易的案例说明。",
         tradeKeys: [tradeKey],
         copyTrade: tradeKey,
@@ -98,6 +104,12 @@ export function TradeLearning({ tradeKey, symbol }: { tradeKey: string; symbol: 
         <p className="text-sm text-muted-foreground">
           把进出场的理由和执行结果分开记录，让复盘回到当时的判断。
         </p>
+      )}
+      {review && (
+        <div className="space-y-4 border-t pt-4">
+          {review.content && <Markdown>{review.content}</Markdown>}
+          <PersonalMedia id={review.id} />
+        </div>
       )}
       <div className="space-y-3 border-t pt-4">
         <h3 className="flex items-center gap-2 text-sm">

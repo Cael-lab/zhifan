@@ -19,8 +19,18 @@ export const POST = handler(async (request: Request) => {
         if (entry.kind !== "case" || !entry.tradeKeys.includes(input.copyTrade))
           throw new Error("案例来源交易无效");
         const originals = db.$client
-          .prepare("SELECT * FROM attachments WHERE owner_type = 'trade' AND owner_id = ?")
-          .all(input.copyTrade) as { name: string; mime: string; size: number; data: Buffer }[];
+          .prepare(
+            `SELECT * FROM attachments WHERE (owner_type = 'trade' AND owner_id = ?)
+            OR (owner_type = 'personal' AND owner_id IN (
+              SELECT id FROM personal_entries WHERE kind = 'review'
+              AND json_extract(body, '$.tradeKeys[0]') = ?))`,
+          )
+          .all(input.copyTrade, input.copyTrade) as {
+          name: string;
+          mime: string;
+          size: number;
+          data: Buffer;
+        }[];
         for (const a of originals)
           db.$client
             .prepare(

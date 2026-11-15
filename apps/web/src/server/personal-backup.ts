@@ -1,6 +1,6 @@
 import type Database from "better-sqlite3";
 import { PersonalStore } from "./personal-store";
-import { ENTRY_KINDS, parsePersonalContent, type PersonalEntry } from "../lib/personal";
+import { ENTRY_KINDS, parsePersonalContent } from "../lib/personal";
 import { attachmentMime, MAX_ATTACHMENT_SIZE } from "../lib/attachment-validation";
 type Attachment = {
   id: string;
@@ -135,6 +135,10 @@ export function importPersonal(sqlite: Database.Database, input: unknown) {
           new Date().toISOString(),
         );
       imported++;
+      if (e.kind === "review")
+        sqlite
+          .prepare("UPDATE trades SET reviewed_at = ? WHERE key = ?")
+          .run(new Date().toISOString(), tradeKeys[0]);
     }
     for (const a of files) {
       if (!store.get(a.owner_id)) continue;
