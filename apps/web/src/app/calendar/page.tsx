@@ -56,11 +56,14 @@ function CalendarView() {
               <ChevronLeft />
             </Button>
             <span className="w-36 text-center text-sm font-medium">
-              {new Date(Date.UTC(month.year, month.month - 1)).toLocaleString("en-US", {
-                month: "long",
-                year: "numeric",
-                timeZone: "UTC",
-              })}
+              {new Date(Date.UTC(month.year, month.month - 1)).toLocaleString(
+                language === "en" ? "en-US" : "zh-CN",
+                {
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "UTC",
+                },
+              )}
             </span>
             <Button
               variant="outline"

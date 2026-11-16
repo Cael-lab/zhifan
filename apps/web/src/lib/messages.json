@@ -1761,5 +1761,8 @@
   ["Stop", "止损"],
   ["Target", "目标"],
   ["Avg planned R", "平均计划 R"],
-  ["Avg realized R", "平均实际 R"]
+  ["Avg realized R", "平均实际 R"],
+  ["Before trading", "交易前"],
+  ["During trading", "交易中"],
+  ["After trading", "交易后"]
 ]

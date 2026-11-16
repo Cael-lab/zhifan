@@ -123,7 +123,7 @@ function Progress() {
           {STAGES.map((s) => (
             <Card key={s}>
               <CardHeader>
-                <CardTitle>{s}</CardTitle>
+                <CardTitle>{ui(s)}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {rules
@@ -219,7 +219,9 @@ function Progress() {
                 onValueChange={(next) => setStage(next)}
               >
                 {STAGES.map((s) => (
-                  <option key={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {ui(s)}
+                  </option>
                 ))}
               </OptionSelect>
             </Field>
@@ -234,7 +236,7 @@ function Progress() {
                       )
                     }
                   />
-                  {day}
+                  {ui(day)}
                 </label>
               ))}
             </div>
