@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { DatePicker } from "@/components/ui/date-picker";
 import { OptionSelect } from "@/components/ui/option-select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,6 +24,8 @@ export default function ProgressPage() {
   );
 }
 function Progress() {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<{
     rules: Routine[];
     checks: RoutineCheck[];
@@ -62,17 +66,18 @@ function Progress() {
   return (
     <div>
       <FilterBar
-        title="Progress"
+        title={ui("Progress")}
         actions={
           <Button size="sm" onClick={() => setOpen(true)}>
-            Add routine
+            {ui("Add routine")}
           </Button>
         }
       />
       <div className="space-y-4 p-4">
         <p className="text-sm text-muted-foreground">
-          Build a repeatable trading day. Routines are tracked independently of trade filters and
-          profit.
+          {ui(
+            "Build a repeatable trading day. Routines are tracked independently of trade filters and profit.",
+          )}
         </p>
         {(error || failure) && (
           <p role="alert" className="text-sm text-destructive">
@@ -83,17 +88,17 @@ function Progress() {
           <CardContent className="flex flex-wrap items-center justify-between gap-6 py-6">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <div>
-                <p className="text-xs text-muted-foreground">Daily completion</p>
+                <p className="text-xs text-muted-foreground">{ui("Daily completion")}</p>
                 <p className="text-4xl font-semibold">
                   {score?.score == null ? "-" : `${Math.round(score.score * 100)}%`}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {score?.completed ?? 0} of {score?.total ?? 0} scheduled routines
+                  {score?.completed ?? 0} {ui("of")} {score?.total ?? 0} {ui("scheduled routines")}
                 </p>
               </div>
-              <Field label="Review date">
+              <Field label={ui("Review date")}>
                 <DatePicker
-                  label="Progress date"
+                  label={ui("Progress date")}
                   value={selected}
                   max={data?.today}
                   onValueChange={setDate}
@@ -148,13 +153,13 @@ function Progress() {
                               void act({ id: r.id }, "DELETE");
                           }}
                         >
-                          Archive
+                          {ui("Archive")}
                         </button>
                       )}
                     </div>
                   ))}
                 {!rules.some((r) => r.stage === s) && (
-                  <p className="text-xs text-muted-foreground">No routines scheduled.</p>
+                  <p className="text-xs text-muted-foreground">{ui("No routines scheduled.")}</p>
                 )}
               </CardContent>
             </Card>
@@ -162,7 +167,7 @@ function Progress() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>Last 13 weeks</CardTitle>
+            <CardTitle>{ui("Last 13 weeks")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto">
@@ -188,25 +193,26 @@ function Progress() {
               ))}
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Brighter squares mean a higher completion rate. Grey means no scheduled routines.
-              Click a day to review it. New routines start today.
+              {ui(
+                "Brighter squares mean a higher completion rate. Grey means no scheduled routines. Click a day to review it. New routines start today.",
+              )}
             </p>
           </CardContent>
         </Card>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add a daily routine</DialogTitle>
+              <DialogTitle>{ui("Add a daily routine")}</DialogTitle>
             </DialogHeader>
-            <Field label="Routine">
+            <Field label={ui("Routine")}>
               <input
                 className={fieldClass}
                 value={title}
-                placeholder="Review the economic calendar"
+                placeholder={ui("Review the economic calendar")}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </Field>
-            <Field label="When">
+            <Field label={ui("When")}>
               <OptionSelect
                 className={fieldClass}
                 value={stage}
@@ -246,7 +252,7 @@ function Progress() {
                 }
               }}
             >
-              Add routine
+              {ui("Add routine")}
             </Button>
           </DialogContent>
         </Dialog>

@@ -1,4 +1,5 @@
 "use client";
+import { useI18n, LanguageSwitch } from "@/components/language";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import {
@@ -78,6 +79,8 @@ export default function SettingsPage() {
 }
 
 function Settings() {
+  const { t: ui, language } = useI18n();
+
   const [active, setActive] = useState<Section>("general");
   const top = useRef<HTMLDivElement>(null);
 
@@ -101,13 +104,22 @@ function Settings() {
 
   return (
     <div>
-      <FilterBar title="Settings" />
+      <FilterBar title={ui("Settings")} />
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 border-b p-4 sm:px-6">
+        <div>
+          <h2 className="text-sm font-medium">{ui("Language")}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {ui("Your selection is saved in this browser. Written content is not translated.")}
+          </p>
+        </div>
+        <LanguageSwitch />
+      </div>
       <div
         ref={top}
         className="mx-auto grid max-w-5xl scroll-mt-20 gap-6 p-4 sm:p-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-8"
       >
         <nav
-          aria-label="Settings sections"
+          aria-label={ui("Settings sections")}
           className="hidden space-y-1 lg:sticky lg:top-20 lg:block lg:self-start"
         >
           {sections.map(({ id, label, icon: Icon }) => (
@@ -135,13 +147,13 @@ function Settings() {
               }}
             >
               <Icon aria-hidden="true" className="size-4 shrink-0" />
-              {label}
+              {ui(label)}
             </a>
           ))}
         </nav>
         <div className="space-y-2 lg:hidden">
           <Label htmlFor="settings-section" className="text-xs text-muted-foreground">
-            Settings section
+            {ui("Settings section")}
           </Label>
           <OptionSelect
             id="settings-section"
@@ -150,7 +162,7 @@ function Settings() {
           >
             {sections.map(({ id, label }) => (
               <option key={id} value={id}>
-                {label}
+                {ui(label)}
               </option>
             ))}
           </OptionSelect>
@@ -161,9 +173,9 @@ function Settings() {
             <section key={id} hidden={active !== id} aria-labelledby={`settings-heading-${id}`}>
               <div className="mb-5 space-y-1.5">
                 <h2 id={`settings-heading-${id}`} className="text-xl font-semibold tracking-tight">
-                  {label}
+                  {ui(label)}
                 </h2>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <p className="text-sm text-muted-foreground">{ui(description)}</p>
               </div>
               <div className="space-y-4">
                 {id === "general" && <TimeZoneSettings />}
@@ -179,23 +191,23 @@ function Settings() {
                 {id === "your-data" && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Export your data</CardTitle>
+                      <CardTitle>{ui("Export your data")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-sm text-muted-foreground">
-                        Save a full journal backup, or export your trades as a CSV.
+                        {ui("Save a full journal backup, or export your trades as a CSV.")}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <Button variant="outline" asChild>
                           <a href="/api/export" download="trade-journal-export.json">
                             <Download aria-hidden="true" />
-                            Full backup (JSON)
+                            {ui("Full backup (JSON)")}
                           </a>
                         </Button>
                         <Button variant="outline" asChild>
                           <a href="/api/export?format=csv" download>
                             <Download aria-hidden="true" />
-                            Trades (CSV)
+                            {ui("Trades (CSV)")}
                           </a>
                         </Button>
                       </div>

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { Settings2, X } from "lucide-react";
@@ -29,6 +31,8 @@ export function AiImportOptions({
   settings?: AiSettingsPayload;
   disabled: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [open, setOpen] = useState(false);
   const connection = settings?.aiConnections[value.provider];
   return (
@@ -47,7 +51,7 @@ export function AiImportOptions({
           htmlFor="ai-import-enabled"
           className="flex cursor-pointer items-center gap-1.5 text-xs font-normal text-muted-foreground"
         >
-          Parse with AI
+          {ui("Parse with AI")}
         </Label>
         <HelpHint heading="AI statement parsing">{AI_IMPORT_HELP}</HelpHint>
         {enabled && (
@@ -55,7 +59,7 @@ export function AiImportOptions({
             <button
               type="button"
               disabled={disabled}
-              aria-label="AI parsing settings"
+              aria-label={ui("AI parsing settings")}
               className="flex size-6 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <Settings2 className="size-3.5" />
@@ -68,13 +72,13 @@ export function AiImportOptions({
           align="end"
           sideOffset={8}
           collisionPadding={12}
-          aria-label="AI parsing settings"
+          aria-label={ui("AI parsing settings")}
           className="z-50 w-[360px] max-w-[calc(100vw-24px)] max-h-[var(--radix-popover-content-available-height)] overflow-y-auto rounded-xl border bg-popover p-4 text-popover-foreground shadow-xl"
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-medium">AI parsing settings</span>
+            <span className="text-sm font-medium">{ui("AI parsing settings")}</span>
             <Popover.Close
-              aria-label="Close AI parsing settings"
+              aria-label={ui("Close AI parsing settings")}
               className="rounded-md p-1 text-muted-foreground hover:bg-accent"
             >
               <X className="size-4" />
@@ -83,7 +87,7 @@ export function AiImportOptions({
           <div className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1">
-                <Label htmlFor="import-ai-provider">AI provider</Label>
+                <Label htmlFor="import-ai-provider">{ui("AI provider")}</Label>
                 <OptionSelect
                   id="import-ai-provider"
                   value={value.provider}
@@ -97,12 +101,12 @@ export function AiImportOptions({
                     });
                   }}
                 >
-                  <option value="openai">OpenAI</option>
-                  <option value="anthropic">Anthropic</option>
+                  <option value="openai">{ui("OpenAI")}</option>
+                  <option value="anthropic">{ui("Anthropic")}</option>
                 </OptionSelect>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="import-ai-model">Model ID</Label>
+                <Label htmlFor="import-ai-model">{ui("Model ID")}</Label>
                 <Input
                   id="import-ai-model"
                   value={value.model}
@@ -113,7 +117,9 @@ export function AiImportOptions({
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="import-ai-key">{AI_PROVIDER_NAMES[value.provider]} API key</Label>
+              <Label htmlFor="import-ai-key">
+                {AI_PROVIDER_NAMES[value.provider]} {ui("API key")}
+              </Label>
               <Input
                 id="import-ai-key"
                 type="password"
@@ -124,27 +130,29 @@ export function AiImportOptions({
                 onChange={(e) => onChange({ ...value, apiKey: e.target.value })}
                 placeholder={
                   connection?.configured
-                    ? "Leave blank to use your configured key"
-                    : "Enter your API key"
+                    ? ui("Leave blank to use your configured key")
+                    : ui("Enter your API key")
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Keys entered here are used for this upload session only. Manage saved keys in{" "}
+                {ui(
+                  "Keys entered here are used for this upload session only. Manage saved keys in",
+                )}{" "}
                 <a href="/settings#ai-settings" className="underline">
-                  Settings
+                  {ui("Settings")}
                 </a>
                 .
               </p>
             </div>
             <p className="text-xs text-muted-foreground">
-              Your file will be sent to {AI_PROVIDER_NAMES[value.provider]} when you select{" "}
-              <strong>Preview with AI</strong>. Provider charges apply. Review the extracted trades
-              before importing.
+              {ui("Your file will be sent to")} {AI_PROVIDER_NAMES[value.provider]}{" "}
+              {ui("when you select")} <strong>{ui("Preview with AI")}</strong>
+              {ui(". Provider charges apply. Review the extracted trades before importing.")}
             </p>
             <p className="text-xs text-muted-foreground">
-              CSV, TSV, HTML, XML, TXT and PDF · Up to 200 executions per preview. PDFs up to 8 MB;
-              text exports up to 150,000 characters. For spreadsheets, export as CSV first. PDF
-              support depends on your selected model.
+              {ui(
+                "CSV, TSV, HTML, XML, TXT and PDF · Up to 200 executions per preview. PDFs up to 8 MB; text exports up to 150,000 characters. For spreadsheets, export as CSV first. PDF support depends on your selected model.",
+              )}
             </p>
           </div>
         </Popover.Content>

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useEffect, useState } from "react";
 import { CurrencyPicker } from "./currency-picker";
 import { Button } from "./ui/button";
@@ -14,6 +16,8 @@ import {
 import { postJson, useApi } from "@/lib/use-api";
 
 export function CurrencySettings() {
+  const { t: ui, language } = useI18n();
+
   const settings = useApi<{ currencyConversion: CurrencyConversion }>("/api/settings");
   const accounts = useApi<{ accounts: { currency: string }[] }>("/api/accounts");
   const [enabled, setEnabled] = useState(false);
@@ -40,10 +44,10 @@ export function CurrencySettings() {
   ].sort();
   const dirty = () => {
     setSaved(false);
-    setError("");
+    setError(ui(""));
   };
   const save = async () => {
-    setError("");
+    setError(ui(""));
     setSaved(false);
     try {
       const parsedRates = Object.fromEntries(
@@ -70,11 +74,11 @@ export function CurrencySettings() {
   return (
     <Card id="currency-conversion" className="scroll-mt-20">
       <CardHeader>
-        <CardTitle>Currency conversion</CardTitle>
+        <CardTitle>{ui("Currency conversion")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Combine accounts using your own saved exchange rates. Works entirely offline.
+          {ui("Combine accounts using your own saved exchange rates. Works entirely offline.")}
         </p>
         <fieldset disabled={busy || !settings.data || !accounts.data} className="space-y-4">
           <label className="flex items-center gap-2 text-sm">
@@ -86,10 +90,10 @@ export function CurrencySettings() {
                 dirty();
               }}
             />
-            Convert dashboard and calendar to the reporting currency
+            {ui("Convert dashboard and calendar to the reporting currency")}
           </label>
           <div className="space-y-1">
-            <Label htmlFor="reporting-currency">Reporting currency</Label>
+            <Label htmlFor="reporting-currency">{ui("Reporting currency")}</Label>
             <CurrencyPicker
               id="reporting-currency"
               value={reportingCurrency}
@@ -101,7 +105,9 @@ export function CurrencySettings() {
               }}
             />
             <p className="text-xs text-muted-foreground">
-              Changing the reporting currency clears the draft rates. Enter new rates before saving.
+              {ui(
+                "Changing the reporting currency clears the draft rates. Enter new rates before saving.",
+              )}
             </p>
           </div>
           <div className="space-y-3">
@@ -130,12 +136,12 @@ export function CurrencySettings() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            These are fixed baseline rates, not live market rates. Changing saved rates recalculates
-            all dashboard and calendar history, including starting balances and drawdown. Original
-            account records, trade details and reports keep their account currencies.
+            {ui(
+              "These are fixed baseline rates, not live market rates. Changing saved rates recalculates all dashboard and calendar history, including starting balances and drawdown. Original account records, trade details and reports keep their account currencies.",
+            )}
           </p>
           <Button onClick={save} disabled={busy}>
-            {busy ? "Saving…" : "Save conversion settings"}
+            {busy ? ui("Saving…") : ui("Save conversion settings")}
           </Button>
         </fieldset>
         {(error || settings.error || accounts.error) && (
@@ -145,7 +151,9 @@ export function CurrencySettings() {
         )}
         {saved && (
           <p role="status" className="text-sm text-muted-foreground">
-            Conversion settings saved. Dashboard and calendar figures now use these settings.
+            {ui(
+              "Conversion settings saved. Dashboard and calendar figures now use these settings.",
+            )}
           </p>
         )}
       </CardContent>

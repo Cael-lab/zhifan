@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useState } from "react";
 import { postJson, useApi } from "@/lib/use-api";
@@ -14,6 +15,8 @@ interface SettingsPayload {
 }
 
 export function TimeZoneSettings() {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<SettingsPayload>("/api/settings");
   const [timeZone, setTimeZone] = useState("");
   const [importTimeZone, setImportTimeZone] = useState("");
@@ -46,17 +49,17 @@ export function TimeZoneSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Timezones</CardTitle>
+        <CardTitle>{ui("Timezones")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <fieldset disabled={busy || !data} className="space-y-4">
           <div>
             <Label htmlFor="display-timezone" className="mb-1 block text-xs text-muted-foreground">
-              Display timezone (IANA)
+              {ui("Display timezone (IANA)")}
             </Label>
             <TimeZonePicker
               id="display-timezone"
-              label="Display timezone"
+              label={ui("Display timezone")}
               value={timeZone}
               onValueChange={(value) => {
                 setTimeZone(value);
@@ -65,7 +68,7 @@ export function TimeZoneSettings() {
               disabled={busy || !data}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Trade times, calendars, journal days, and analytics use this timezone.
+              {ui("Trade times, calendars, journal days, and analytics use this timezone.")}
             </p>
             <button
               className="mt-1 text-xs text-muted-foreground underline"
@@ -74,16 +77,17 @@ export function TimeZoneSettings() {
                 setSaved(false);
               }}
             >
-              Use this device's timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+              {ui("Use this device's timezone (")}
+              {Intl.DateTimeFormat().resolvedOptions().timeZone})
             </button>
           </div>
           <div>
             <Label htmlFor="import-timezone" className="mb-1 block text-xs text-muted-foreground">
-              Default import timezone (IANA)
+              {ui("Default import timezone (IANA)")}
             </Label>
             <TimeZonePicker
               id="import-timezone"
-              label="Default import timezone"
+              label={ui("Default import timezone")}
               value={importTimeZone}
               onValueChange={(value) => {
                 setImportTimeZone(value);
@@ -92,12 +96,12 @@ export function TimeZoneSettings() {
               disabled={busy || !data}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Used for timestamps without an offset in file imports and IBKR broker sync. You can
-              override it for each file. Existing trades are not changed; correcting an IBKR
-              account's timezone requires a separate account for recovery.
+              {ui(
+                "Used for timestamps without an offset in file imports and IBKR broker sync. You can override it for each file. Existing trades are not changed; correcting an IBKR account's timezone requires a separate account for recovery.",
+              )}
             </p>
           </div>
-          <Button onClick={save}>{busy ? "Saving…" : "Save timezones"}</Button>
+          <Button onClick={save}>{busy ? ui("Saving…") : ui("Save timezones")}</Button>
         </fieldset>
         {(failure || error) && (
           <p role="alert" className="text-sm text-destructive">
@@ -106,7 +110,7 @@ export function TimeZoneSettings() {
         )}
         {saved && (
           <p role="status" className="text-sm text-muted-foreground">
-            Timezones saved.
+            {ui("Timezones saved.")}
           </p>
         )}
       </CardContent>
@@ -115,6 +119,8 @@ export function TimeZoneSettings() {
 }
 
 export function ContractMultiplierSettings() {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<SettingsPayload>("/api/settings");
   const [multipliers, setMultipliers] = useState("");
   const [busy, setBusy] = useState(false);
@@ -167,7 +173,7 @@ export function ContractMultiplierSettings() {
   return (
     <Card id="contract-multipliers" className="scroll-mt-20">
       <CardHeader>
-        <CardTitle>Contract multipliers</CardTitle>
+        <CardTitle>{ui("Contract multipliers")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <fieldset disabled={busy || !data} className="space-y-4">
@@ -176,7 +182,7 @@ export function ContractMultiplierSettings() {
               htmlFor="contract-multiplier-values"
               className="mb-1 block text-xs text-muted-foreground"
             >
-              Futures/options — one per line, SYMBOL=multiplier
+              {ui("Futures/options — one per line, SYMBOL=multiplier")}
             </Label>
             <textarea
               id="contract-multiplier-values"
@@ -185,18 +191,21 @@ export function ContractMultiplierSettings() {
                 setMultipliers(event.target.value);
                 setSaved(false);
               }}
-              placeholder={"ESU6=50\nNQU6=20\nMESU6=5"}
+              placeholder={ui("ESU6=50\nNQU6=20\nMESU6=5")}
               className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-2 font-mono text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Use the exact symbol shown on your imported trades, including the contract month when
-              present.
+              {ui(
+                "Use the exact symbol shown on your imported trades, including the contract month when present.",
+              )}
             </p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Saving multipliers recalculates existing trade P&L from fills and preserves annotations.
+            {ui(
+              "Saving multipliers recalculates existing trade P&L from fills and preserves annotations.",
+            )}
           </p>
-          <Button onClick={save}>{busy ? "Saving…" : "Save multipliers"}</Button>
+          <Button onClick={save}>{busy ? ui("Saving…") : ui("Save multipliers")}</Button>
         </fieldset>
         {(failure || error) && (
           <p role="alert" className="text-sm text-destructive">
@@ -205,7 +214,7 @@ export function ContractMultiplierSettings() {
         )}
         {saved && (
           <p role="status" className="text-sm text-muted-foreground">
-            Contract multipliers saved.
+            {ui("Contract multipliers saved.")}
           </p>
         )}
       </CardContent>

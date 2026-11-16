@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -22,6 +23,8 @@ export function ReportMarketEstimates({
   currencies: string[];
   onComplete: () => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   const { data } = useApi<{ connections: MarketConnection[] }>("/api/market-data/connections");
   const available = data?.connections.filter((item) => item.configured) ?? [];
   const [provider, setProvider] = useState("");
@@ -94,26 +97,28 @@ export function ReportMarketEstimates({
   return (
     <div className="space-y-3 rounded-xl border bg-card p-4">
       <div>
-        <h3 className="text-sm font-medium">MAE & MFE estimates</h3>
+        <h3 className="text-sm font-medium">{ui("MAE & MFE estimates")}</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          {points.length - missing.length} of {points.length} closed trades have saved estimates.
-          Estimated gross excursions exclude fees; MAE is shown as a positive adverse amount.
-          Missing values are excluded from plots, never counted as zero.
+          {points.length - missing.length} {ui("of")} {points.length}{" "}
+          {ui(
+            "closed trades have saved estimates. Estimated gross excursions exclude fees; MAE is shown as a positive adverse amount. Missing values are excluded from plots, never counted as zero.",
+          )}
         </p>
       </div>
       {missing.length > 0 && (
         <details>
-          <summary className="cursor-pointer text-sm">Calculate missing estimates</summary>
+          <summary className="cursor-pointer text-sm">{ui("Calculate missing estimates")}</summary>
           <div className="mt-3 space-y-3">
             <p className="text-xs text-muted-foreground">
-              Loads {resolution} candles for this selection using each trade’s recorded symbol. This
-              uses your provider allowance and may take several minutes. For custom symbols or a
-              specific CSV dataset, load and save estimates from the individual trade.
+              {ui("Loads")} {resolution}{" "}
+              {ui(
+                "candles for this selection using each trade’s recorded symbol. This uses your provider allowance and may take several minutes. For custom symbols or a specific CSV dataset, load and save estimates from the individual trade.",
+              )}
             </p>
             {available.length ? (
               <>
                 <OptionSelect
-                  aria-label="Estimate data provider"
+                  aria-label={ui("Estimate data provider")}
                   value={provider}
                   disabled={busy}
                   onValueChange={(value) => {
@@ -123,7 +128,7 @@ export function ReportMarketEstimates({
                   }}
                 >
                   <option value="" disabled>
-                    Choose a data source
+                    {ui("Choose a data source")}
                   </option>
                   {available.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -132,7 +137,7 @@ export function ReportMarketEstimates({
                   ))}
                 </OptionSelect>
                 <OptionSelect
-                  aria-label="Estimate candle resolution"
+                  aria-label={ui("Estimate candle resolution")}
                   disabled={busy}
                   value={resolution}
                   onValueChange={(value) => setResolution(value as Resolution)}
@@ -145,7 +150,7 @@ export function ReportMarketEstimates({
                 </OptionSelect>
                 {info?.datasets && (
                   <OptionSelect
-                    aria-label="Estimate dataset"
+                    aria-label={ui("Estimate dataset")}
                     value={dataset}
                     disabled={busy}
                     onValueChange={(value) => {
@@ -155,7 +160,7 @@ export function ReportMarketEstimates({
                   >
                     {info.datasets.map((item) => (
                       <option key={item.value} value={item.value}>
-                        {item.label}
+                        {ui(item.label)}
                       </option>
                     ))}
                   </OptionSelect>
@@ -168,12 +173,14 @@ export function ReportMarketEstimates({
                     disabled={busy || currencies.length !== 1}
                     onChange={(event) => setConfirmed(event.target.checked)}
                   />
-                  I confirm these symbols, price adjustments and quote currencies match the fills
-                  and account currency ({currencies.join(", ") || "none"}).
+                  {ui(
+                    "I confirm these symbols, price adjustments and quote currencies match the fills and account currency (",
+                  )}
+                  {currencies.join(", ") || ui("none")}).
                 </label>
                 {currencies.length > 1 && (
                   <p className="text-xs text-muted-foreground">
-                    Select accounts with one currency to calculate estimates together.
+                    {ui("Select accounts with one currency to calculate estimates together.")}
                   </p>
                 )}
                 <Button
@@ -186,12 +193,12 @@ export function ReportMarketEstimates({
                   }
                   onClick={() => void calculate()}
                 >
-                  Calculate {missing.length} missing estimates
+                  {ui("Calculate")} {missing.length} {ui("missing estimates")}
                 </Button>
               </>
             ) : (
               <a className="text-sm underline" href="/settings#market-data">
-                Connect a market data provider in Settings
+                {ui("Connect a market data provider in Settings")}
               </a>
             )}
           </div>
@@ -199,7 +206,7 @@ export function ReportMarketEstimates({
       )}
       {busy && (
         <Button variant="outline" onClick={() => controller.current?.abort()}>
-          Stop calculation
+          {ui("Stop calculation")}
         </Button>
       )}
       {status && (

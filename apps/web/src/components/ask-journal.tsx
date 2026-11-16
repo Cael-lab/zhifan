@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
@@ -24,6 +25,8 @@ export function AskJournal() {
 }
 
 function ScopedAskJournal({ filters, timeZone }: { filters: AnalysisFilters; timeZone: string }) {
+  const { t: ui, language } = useI18n();
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<{ answer: string; scope: AiScope } | null>(null);
   const { run, busy, error, dismiss } = useAiRequest();
@@ -48,11 +51,13 @@ function ScopedAskJournal({ filters, timeZone }: { filters: AnalysisFilters; tim
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ask your journal</CardTitle>
+        <CardTitle>{ui("Ask your journal")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <p className="text-xs text-muted-foreground">
-          Uses the selected accounts and journal filters. Changing filters clears the answer.
+          {ui(
+            "Uses the selected accounts and journal filters. Changing filters clears the answer.",
+          )}
         </p>
         <form
           className="flex gap-2"
@@ -62,14 +67,14 @@ function ScopedAskJournal({ filters, timeZone }: { filters: AnalysisFilters; tim
           }}
         >
           <Input
-            aria-label="Ask your journal a question"
+            aria-label={ui("Ask your journal a question")}
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            placeholder="Why do my Monday shorts keep failing?"
+            placeholder={ui("Why do my Monday shorts keep failing?")}
           />
           <Button type="submit" disabled={busy || !question.trim()}>
             <Sparkles />
-            {busy ? "Thinking…" : "Ask"}
+            {busy ? ui("Thinking…") : ui("Ask")}
           </Button>
         </form>
         <div className="flex flex-wrap gap-1.5">

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { HoverHint } from "./ui/tooltip";
 import { useRef, useState } from "react";
 import { Paperclip, Trash2 } from "lucide-react";
@@ -11,6 +13,8 @@ export function Attachments({
   type: "trade" | "day" | "note" | "missed" | "prop-account" | "prop-entry" | "personal";
   id: string;
 }) {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<{
     attachments: { id: string; name: string; mime: string; size: number }[];
   }>(`/api/attachments?type=${type}&id=${encodeURIComponent(id)}`);
@@ -28,13 +32,15 @@ export function Attachments({
           onClick={() => input.current?.click()}
         >
           <Paperclip />
-          {busy ? "Uploading…" : "Add attachment"}
+          {busy ? ui("Uploading…") : ui("Add attachment")}
         </Button>
-        <span className="text-xs text-muted-foreground">Images or PDF · up to 8 MB each</span>
+        <span className="text-xs text-muted-foreground">
+          {ui("Images or PDF · up to 8 MB each")}
+        </span>
       </div>
       <input
         ref={input}
-        aria-label="Upload attachment"
+        aria-label={ui("Upload attachment")}
         type="file"
         accept="image/png,image/jpeg,image/webp,application/pdf"
         className="hidden"
@@ -88,7 +94,9 @@ export function Attachments({
               </a>
             </HoverHint>
             <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-              <span>{Math.round(a.size / 1024)} KB</span>
+              <span>
+                {Math.round(a.size / 1024)} {ui("KB")}
+              </span>
               <Button
                 type="button"
                 variant="ghost"

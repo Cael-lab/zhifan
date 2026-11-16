@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { OptionSelect } from "@/components/ui/option-select";
 
 import { useState } from "react";
@@ -12,6 +14,8 @@ export function RuleChecklist({
   tradeKey: string;
   playbookId: string | null;
 }) {
+  const { t: ui, language } = useI18n();
+
   const url = `/api/trades/${encodeURIComponent(tradeKey)}/rules`;
   const { data, error, refresh } = useApi<{
       name: string | null;
@@ -23,7 +27,7 @@ export function RuleChecklist({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Strategy rule review</CardTitle>
+        <CardTitle>{ui("Strategy rule review")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {data?.name ? (
@@ -33,11 +37,11 @@ export function RuleChecklist({
               {evaluated.length
                 ? `${Math.round((followed / evaluated.length) * 100)}% followed · `
                 : ""}
-              {evaluated.length}/{data.rules.length} rules assessed
+              {evaluated.length}/{data.rules.length} {ui("rules assessed")}
             </p>
             {data.rules.length === 0 && (
               <p className="text-xs text-muted-foreground">
-                Add rules to this playbook to review adherence.
+                {ui("Add rules to this playbook to review adherence.")}
               </p>
             )}
             {data.rules.map((r) => (
@@ -63,16 +67,16 @@ export function RuleChecklist({
                     }
                   }}
                 >
-                  <option value="unreviewed">Not assessed</option>
-                  <option value="true">Followed</option>
-                  <option value="false">Broken</option>
+                  <option value="unreviewed">{ui("Not assessed")}</option>
+                  <option value="true">{ui("Followed")}</option>
+                  <option value="false">{ui("Broken")}</option>
                 </OptionSelect>
               </label>
             ))}
           </>
         ) : (
           <p className="text-xs text-muted-foreground">
-            Assign a playbook to check its rules for this trade.
+            {ui("Assign a playbook to check its rules for this trade.")}
           </p>
         )}
         {(error || failure) && (

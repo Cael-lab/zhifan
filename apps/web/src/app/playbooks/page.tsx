@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { Suspense, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -28,6 +29,8 @@ export default function PlaybooksPage() {
 }
 
 function Playbooks() {
+  const { t: ui, language } = useI18n();
+
   const { data, refresh } = useApi<{ playbooks: Playbook[] }>("/api/playbooks");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -53,19 +56,20 @@ function Playbooks() {
   return (
     <div>
       <FilterBar
-        title="Playbooks"
+        title={ui("Playbooks")}
         actions={
           <Button size="sm" onClick={() => setOpen(true)}>
             <Plus />
-            New playbook
+            {ui("New playbook")}
           </Button>
         }
       />
       <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
         {data?.playbooks.length === 0 && (
           <p className="col-span-full py-16 text-center text-sm text-muted-foreground">
-            A playbook is a setup you trade on purpose — name it, write its rules, then tag trades
-            with it and let Reports tell you if it actually pays.
+            {ui(
+              "A playbook is a setup you trade on purpose — name it, write its rules, then tag trades with it and let Reports tell you if it actually pays.",
+            )}
           </p>
         )}
         {data?.playbooks.map((playbook) => (
@@ -75,7 +79,9 @@ function Playbooks() {
                 {playbook.name}
               </CardTitle>
               <div className="ml-auto flex shrink-0 items-center gap-2">
-                <span className="text-xs text-muted-foreground">{playbook.tradeCount} trades</span>
+                <span className="text-xs text-muted-foreground">
+                  {playbook.tradeCount} {ui("trades")}
+                </span>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -118,29 +124,29 @@ function Playbooks() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New playbook</DialogTitle>
+            <DialogTitle>{ui("New playbook")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Name (e.g. Opening range breakout)"
+              placeholder={ui("Name (e.g. Opening range breakout)")}
             />
             <Input
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="One-line description"
+              placeholder={ui("One-line description")}
             />
             <Textarea
               value={rules}
               onChange={(event) => setRules(event.target.value)}
-              placeholder={
-                "One rule per line:\nOnly A+ setups\nRisk max 1R\nNo entries after 11:30"
-              }
+              placeholder={ui(
+                "One rule per line:\nOnly A+ setups\nRisk max 1R\nNo entries after 11:30",
+              )}
               className="min-h-32"
             />
             <Button onClick={create} disabled={!name}>
-              Create
+              {ui("Create")}
             </Button>
           </div>
         </DialogContent>

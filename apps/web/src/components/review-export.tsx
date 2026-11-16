@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useEffect, useRef, useState } from "react";
 import { Download, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,8 @@ export function ReviewExport({
   document: ReviewDocument;
   containsFinancialData?: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const privateMode = usePrivacy();
   const concealed = privateMode && containsFinancialData;
   const [busy, setBusy] = useState(false),
@@ -33,7 +37,7 @@ export function ReviewExport({
   );
   async function run(image: boolean) {
     setBusy(true);
-    setError("");
+    setError(ui(""));
     try {
       const result = await (image ? exportPng : exportPdf)(document);
       urls.current.forEach(URL.revokeObjectURL);
@@ -63,7 +67,7 @@ export function ReviewExport({
           onClick={() => void run(false)}
         >
           <Download />
-          Export PDF
+          {ui("Export PDF")}
         </Button>
         <Button
           type="button"
@@ -73,12 +77,12 @@ export function ReviewExport({
           onClick={() => void run(true)}
         >
           <ImageIcon />
-          Export PNG
+          {ui("Export PNG")}
         </Button>
       </div>
       {concealed && (
         <p className="text-xs text-muted-foreground">
-          Turn off privacy mode to export financial figures.
+          {ui("Turn off privacy mode to export financial figures.")}
         </p>
       )}
       {error && (
@@ -89,20 +93,20 @@ export function ReviewExport({
       <Dialog open={open && !concealed} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Review export</DialogTitle>
+            <DialogTitle>{ui("Review export")}</DialogTitle>
           </DialogHeader>
           {files.map((f, i) => (
             <div key={f.url} className="space-y-3">
               <Button asChild size="sm">
                 <a href={f.url} download={f.filename}>
-                  Download {f.type === "application/pdf" ? "PDF" : "PNG"}
+                  {ui("Download")} {f.type === "application/pdf" ? ui("PDF") : ui("PNG")}
                   {files.length > 1 ? ` · ${i + 1}/${files.length}` : ""}
                 </a>
               </Button>
               {f.type === "application/pdf" ? (
                 <div className="rounded border bg-white p-6 text-slate-800">
                   <p className="mb-4 text-xs text-slate-500">
-                    Review text · download the PDF for the paginated document.
+                    {ui("Review text · download the PDF for the paginated document.")}
                   </p>
                   <h3 className="mb-2 text-xl font-semibold">{previewDocument?.title}</h3>
                   <p className="mb-6 text-xs text-slate-500">{previewDocument?.subtitle}</p>

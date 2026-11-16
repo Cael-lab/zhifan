@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useState, type ReactNode } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -104,6 +106,8 @@ function Form({
   children: ReactNode;
   submit: () => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   return (
     <>
       <DialogHeader>
@@ -126,7 +130,7 @@ function Form({
           </p>
         )}
         <Button type="submit" disabled={busy}>
-          {busy ? "Saving…" : "Save record"}
+          {busy ? ui("Saving…") : ui("Save record")}
         </Button>
       </form>
     </>
@@ -154,6 +158,8 @@ function AccountForm({
   close,
   refresh,
 }: Props & { modal: Extract<PropModal, { kind: "account" }> }) {
+  const { t: ui, language } = useI18n();
+
   const old = modal.account;
   const [id] = useState(() => old?.id ?? crypto.randomUUID());
   const [values, set] = useState(() =>
@@ -198,12 +204,14 @@ function AccountForm({
     <Form
       title={
         old
-          ? "Edit prop account"
+          ? ui("Edit prop account")
           : modal.parent
-            ? "Track next attempt or phase"
-            : "Track a prop account"
+            ? ui("Track next attempt or phase")
+            : ui("Track a prop account")
       }
-      description="Keep each evaluation, reset attempt and funding phase as its own record. Account size is nominal capital, not money you spent."
+      description={ui(
+        "Keep each evaluation, reset attempt and funding phase as its own record. Account size is nominal capital, not money you spent.",
+      )}
       busy={busy}
       error={error}
       submit={() =>
@@ -213,7 +221,7 @@ function AccountForm({
       <div className="grid gap-3 sm:grid-cols-2">
         {input("firm", "Firm name", true)}
         {input("name", "Account / attempt name", true)}
-        <Field label="Program">
+        <Field label={ui("Program")}>
           <OptionSelect
             value={values.program}
             onValueChange={(program) => set({ ...values, program })}
@@ -225,7 +233,7 @@ function AccountForm({
             ))}
           </OptionSelect>
         </Field>
-        <Field label="Status">
+        <Field label={ui("Status")}>
           <OptionSelect
             value={values.status}
             onValueChange={(status) =>
@@ -246,30 +254,30 @@ function AccountForm({
         </Field>
         {input("currency", "Currency code", true)}
         {input("size", "Nominal account size (optional)")}
-        <Field label="Opened on">
+        <Field label={ui("Opened on")}>
           <DatePicker
-            label="Prop account opening date"
+            label={ui("Prop account opening date")}
             value={values.openedOn}
             max={data.today}
             onValueChange={(openedOn) => set({ ...values, openedOn })}
           />
         </Field>
         {values.status !== "active" && (
-          <Field label="Resolved on">
+          <Field label={ui("Resolved on")}>
             <DatePicker
-              label="Prop account closing date"
+              label={ui("Prop account closing date")}
               value={values.closedOn}
               max={data.today}
               onValueChange={(closedOn) => set({ ...values, closedOn })}
             />
           </Field>
         )}
-        <Field label="Previous attempt / phase">
+        <Field label={ui("Previous attempt / phase")}>
           <OptionSelect
             value={values.parentId}
             onValueChange={(parentId) => set({ ...values, parentId })}
           >
-            <option value="">None</option>
+            <option value="">{ui("None")}</option>
             {data.accounts
               .filter(
                 (a) =>
@@ -284,12 +292,12 @@ function AccountForm({
               ))}
           </OptionSelect>
         </Field>
-        <Field label="Link journal account (optional)">
+        <Field label={ui("Link journal account (optional)")}>
           <OptionSelect
             value={values.journalAccountId}
             onValueChange={(journalAccountId) => set({ ...values, journalAccountId })}
           >
-            <option value="">No journal link</option>
+            <option value="">{ui("No journal link")}</option>
             {journal?.accounts.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
@@ -299,15 +307,16 @@ function AccountForm({
         </Field>
       </div>
       <details>
-        <summary className="cursor-pointer text-sm">Renewal reminder</summary>
+        <summary className="cursor-pointer text-sm">{ui("Renewal reminder")}</summary>
         <p className="my-2 text-xs text-muted-foreground">
-          A reminder only. Record an expense when charged; nothing is charged or added
-          automatically.
+          {ui(
+            "A reminder only. Record an expense when charged; nothing is charged or added automatically.",
+          )}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Next renewal">
+          <Field label={ui("Next renewal")}>
             <DatePicker
-              label="Next renewal date"
+              label={ui("Next renewal date")}
               value={values.renewalOn}
               onValueChange={(renewalOn) => set({ ...values, renewalOn })}
             />
@@ -319,10 +328,10 @@ function AccountForm({
           variant="ghost"
           onClick={() => set({ ...values, renewalOn: "", renewalAmount: "" })}
         >
-          Clear reminder
+          {ui("Clear reminder")}
         </Button>
       </details>
-      <Field label="Notes / rules / breach reason">
+      <Field label={ui("Notes / rules / breach reason")}>
         <textarea
           className={`${fieldClass} h-24 py-2`}
           value={values.notes}
@@ -339,6 +348,8 @@ function EntryForm({
   close,
   refresh,
 }: Props & { modal: Extract<PropModal, { kind: "entry" }> }) {
+  const { t: ui, language } = useI18n();
+
   const old = modal.entry,
     expense = modal.expense;
   const [id] = useState(() => old?.id ?? crypto.randomUUID());
@@ -386,10 +397,10 @@ function EntryForm({
         old
           ? `Edit ${kind}`
           : payout
-            ? "Log a payout request"
+            ? ui("Log a payout request")
             : refund
-              ? "Record an expense refund"
-              : "Record prop spending"
+              ? ui("Record an expense refund")
+              : ui("Record prop spending")
       }
       description={
         payout
@@ -403,7 +414,7 @@ function EntryForm({
       }
     >
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Prop account">
+        <Field label={ui("Prop account")}>
           <OptionSelect
             disabled={Boolean(old || refund)}
             value={values.accountId}
@@ -412,13 +423,15 @@ function EntryForm({
               set({ ...values, accountId, firm: a?.firm ?? "", currency: a?.currency ?? "" });
             }}
           >
-            <option value="">{payout ? "Choose a funded account" : "Shared firm expense"}</option>
+            <option value="">
+              {payout ? ui("Choose a funded account") : ui("Shared firm expense")}
+            </option>
             {data.accounts
               .filter((a) => !payout || ["funded", "instant_funded", "live"].includes(a.program))
               .map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.firm} · {a.name}
-                  {a.archived ? " (archived)" : ""}
+                  {a.archived ? ui(" (archived)") : ""}
                 </option>
               ))}
           </OptionSelect>
@@ -426,7 +439,7 @@ function EntryForm({
         {input("firm", "Firm", true, Boolean(values.accountId || old || refund))}
         {input("currency", "Currency", true, Boolean(values.accountId || old || refund))}
         {!payout && !refund && (
-          <Field label="Expense category">
+          <Field label={ui("Expense category")}>
             <OptionSelect
               value={values.category}
               onValueChange={(category) => set({ ...values, category })}
@@ -445,14 +458,15 @@ function EntryForm({
             {input("splitPercent", "Your share (%)", true)}
             {input("fee", "Fees withheld from your share", true)}
             <p className="col-span-full text-xs text-muted-foreground">
-              If your amount is already after the firm split, enter 100% and only fees still to be
-              deducted. Never deduct the split twice.
+              {ui(
+                "If your amount is already after the firm split, enter 100% and only fees still to be deducted. Never deduct the split twice.",
+              )}
             </p>
           </>
         )}
-        <Field label={payout ? "Request date" : "Cash date"}>
+        <Field label={payout ? ui("Request date") : ui("Cash date")}>
           <DatePicker
-            label={payout ? "Payout request date" : "Transaction date"}
+            label={payout ? ui("Payout request date") : ui("Transaction date")}
             value={values.occurredOn}
             max={data.today}
             onValueChange={(occurredOn) => set({ ...values, occurredOn })}
@@ -460,14 +474,14 @@ function EntryForm({
         </Field>
         {payout && (
           <>
-            <Field label="Expected payment date (optional)">
+            <Field label={ui("Expected payment date (optional)")}>
               <DatePicker
-                label="Expected payout date"
+                label={ui("Expected payout date")}
                 value={values.dueOn}
                 onValueChange={(dueOn) => set({ ...values, dueOn })}
               />
             </Field>
-            <Field label="Payout status">
+            <Field label={ui("Payout status")}>
               <OptionSelect
                 value={values.status}
                 onValueChange={(status) =>
@@ -485,7 +499,7 @@ function EntryForm({
         )}
         {input("reference", "Invoice / payment reference")}
       </div>
-      <Field label="Notes">
+      <Field label={ui("Notes")}>
         <textarea
           className={`${fieldClass} h-20 py-2`}
           value={values.notes}
@@ -494,8 +508,8 @@ function EntryForm({
       </Field>
       {refund && (
         <p className="text-xs text-muted-foreground">
-          Linked expense: {values.parentId}. Refunds reduce costs and are shown separately from
-          payout income.
+          {ui("Linked expense:")} {values.parentId}
+          {ui(". Refunds reduce costs and are shown separately from payout income.")}
         </p>
       )}
       {old && input("reason", "Reason for change", true)}
@@ -508,6 +522,8 @@ function ReceiptForm({
   close,
   refresh,
 }: Props & { modal: Extract<PropModal, { kind: "receipt" }> }) {
+  const { t: ui, language } = useI18n();
+
   const { payout } = modal;
   const [id] = useState(() => crypto.randomUUID());
   const [values, set] = useState({
@@ -520,7 +536,7 @@ function ReceiptForm({
   const { busy, error, save } = useSave(close, refresh);
   return (
     <Form
-      title="Record payout cash movement"
+      title={ui("Record payout cash movement")}
       description={`Record the actual net amount credited or returned in ${payout.currency}. If your bank converted currencies, use the statement's original-currency amount; this tracker does not invent an exchange rate.`}
       busy={busy}
       error={error}
@@ -535,10 +551,10 @@ function ReceiptForm({
       }
     >
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Movement">
+        <Field label={ui("Movement")}>
           <OptionSelect value={values.kind} onValueChange={(kind) => set({ ...values, kind })}>
-            <option value="receipt">Money received</option>
-            <option value="reversal">Money returned / reversed</option>
+            <option value="receipt">{ui("Money received")}</option>
+            <option value="reversal">{ui("Money returned / reversed")}</option>
           </OptionSelect>
         </Field>
         <Field label={`Actual amount (${payout.currency})`}>
@@ -548,22 +564,22 @@ function ReceiptForm({
             onChange={(e) => set({ ...values, amount: e.target.value })}
           />
         </Field>
-        <Field label="Settlement date">
+        <Field label={ui("Settlement date")}>
           <DatePicker
-            label="Settlement date"
+            label={ui("Settlement date")}
             value={values.occurredOn}
             max={data.today}
             onValueChange={(occurredOn) => set({ ...values, occurredOn })}
           />
         </Field>
-        <Field label="Bank reference">
+        <Field label={ui("Bank reference")}>
           <Input
             value={values.reference}
             onChange={(e) => set({ ...values, reference: e.target.value })}
           />
         </Field>
       </div>
-      <Field label="Notes">
+      <Field label={ui("Notes")}>
         <textarea
           className={`${fieldClass} h-20 py-2`}
           value={values.notes}
@@ -571,8 +587,9 @@ function ReceiptForm({
         />
       </Field>
       <p className="text-xs text-muted-foreground">
-        Keep the request open for partial payments. Once the final payment arrives, edit the payout
-        status to Completed; a difference from the expected amount remains visible.
+        {ui(
+          "Keep the request open for partial payments. Once the final payment arrives, edit the payout status to Completed; a difference from the expected amount remains visible.",
+        )}
       </p>
     </Form>
   );
@@ -582,6 +599,8 @@ function ChangeForm({
   close,
   refresh,
 }: Props & { modal: Extract<PropModal, { kind: "change" }> }) {
+  const { t: ui, language } = useI18n();
+
   const [reason, setReason] = useState("");
   const { busy, error, save } = useSave(close, refresh);
   return (
@@ -605,13 +624,15 @@ function ChangeForm({
         })
       }
     >
-      <Field label="Reason">
+      <Field label={ui("Reason")}>
         <Input required value={reason} onChange={(e) => setReason(e.target.value)} />
       </Field>
     </Form>
   );
 }
 function Detail({ modal, data }: Props & { modal: Extract<PropModal, { kind: "detail" }> }) {
+  const { t: ui, language } = useI18n();
+
   const account = modal.type === "account" ? data.accounts.find((a) => a.id === modal.id) : null;
   const entry = modal.type === "entry" ? data.entries.find((e) => e.id === modal.id) : null;
   const { data: history } = useApi<{ history: PropAudit[] }>(
@@ -626,16 +647,16 @@ function Detail({ modal, data }: Props & { modal: Extract<PropModal, { kind: "de
         </DialogDescription>
       </DialogHeader>
       <p className="whitespace-pre-wrap text-sm">
-        {account?.notes || entry?.notes || "No notes added."}
+        {account?.notes || entry?.notes || ui("No notes added.")}
       </p>
       {account && (
         <>
           <p className="break-all text-xs text-muted-foreground">
-            Account ID for CSV imports: {account.id}
+            {ui("Account ID for CSV imports:")} {account.id}
           </p>
           {account.parentId && (
             <p className="text-sm">
-              Previous attempt / phase:{" "}
+              {ui("Previous attempt / phase:")}{" "}
               {data.accounts.find((a) => a.id === account.parentId)?.name ?? account.parentId}
             </p>
           )}
@@ -644,28 +665,30 @@ function Detail({ modal, data }: Props & { modal: Extract<PropModal, { kind: "de
               className="text-sm underline"
               href={`/trades?accounts=${encodeURIComponent(account.journalAccountId)}`}
             >
-              Open linked journal trades
+              {ui("Open linked journal trades")}
             </a>
           )}
         </>
       )}
       <Attachments type={modal.type === "account" ? "prop-account" : "prop-entry"} id={modal.id} />
       <details>
-        <summary className="cursor-pointer text-sm">Edit history · latest 100 changes</summary>
+        <summary className="cursor-pointer text-sm">
+          {ui("Edit history · latest 100 changes")}
+        </summary>
         <div className="mt-3 space-y-3">
           {history?.history.map((item) => (
             <details key={item.id} className="rounded-md border p-2 text-xs">
               <summary className="cursor-pointer">
                 {item.createdAt} ·{" "}
-                {item.reason.startsWith("CSV import") ? "CSV import" : item.reason}
+                {item.reason.startsWith("CSV import") ? ui("CSV import") : item.reason}
               </summary>
-              <p className="my-2 font-medium">Before</p>
+              <p className="my-2 font-medium">{ui("Before")}</p>
               <pre className="whitespace-pre-wrap break-all">
                 {item.beforeJson
                   ? JSON.stringify(JSON.parse(item.beforeJson), null, 2)
-                  : "New record"}
+                  : ui("New record")}
               </pre>
-              <p className="my-2 font-medium">After</p>
+              <p className="my-2 font-medium">{ui("After")}</p>
               <pre className="whitespace-pre-wrap break-all">
                 {JSON.stringify(JSON.parse(item.afterJson), null, 2)}
               </pre>
@@ -677,6 +700,8 @@ function Detail({ modal, data }: Props & { modal: Extract<PropModal, { kind: "de
   );
 }
 function ImportForm({ close, refresh }: Props) {
+  const { t: ui, language } = useI18n();
+
   const [content, setContent] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -687,7 +712,7 @@ function ImportForm({ close, refresh }: Props) {
     } | null>(null);
   const act = async (action: "preview" | "import") => {
     setBusy(true);
-    setError("");
+    setError(ui(""));
     try {
       const data = await postJson<typeof result>("/api/prop-firms/csv", { action, content });
       if (action === "preview") setResult(data);
@@ -704,45 +729,45 @@ function ImportForm({ close, refresh }: Props) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Import prop cash CSV</DialogTitle>
+        <DialogTitle>{ui("Import prop cash CSV")}</DialogTitle>
         <DialogDescription>
-          Import settled expenses, refunds and net payouts. Preview validates every row; an import
-          is all-or-nothing and repeated stable IDs are skipped.
+          {ui(
+            "Import settled expenses, refunds and net payouts. Preview validates every row; an import is all-or-nothing and repeated stable IDs are skipped.",
+          )}
         </DialogDescription>
       </DialogHeader>
       <a className="text-sm underline" href="/prop-cash-template.csv" download>
-        Download generic cash header template
+        {ui("Download generic cash header template")}
       </a>
       <p className="text-xs text-muted-foreground">
-        Use kind expense, refund or payout; date YYYY-MM-DD; positive amount in currency units. A
-        payout amount is cash already received after splits and fees. Payouts need account_id from
-        an account’s Details. A refund’s expense_id references its original CSV row ID. Put expenses
-        before their refunds. This is not a broker statement importer.
+        {ui(
+          "Use kind expense, refund or payout; date YYYY-MM-DD; positive amount in currency units. A payout amount is cash already received after splits and fees. Payouts need account_id from an account’s Details. A refund’s expense_id references its original CSV row ID. Put expenses before their refunds. This is not a broker statement importer.",
+        )}
       </p>
       <Input
         type="file"
-        aria-label="Prop cash CSV file"
+        aria-label={ui("Prop cash CSV file")}
         accept=".csv,text/csv"
         disabled={busy}
         onChange={async (e) => {
           const file = e.target.files?.[0];
           setContent("");
           setResult(null);
-          setError("");
+          setError(ui(""));
           if (!file) return;
           if (file.size > 2 * 1024 * 1024) {
-            setError("Use a CSV up to 2 MB / 1,000 rows.");
+            setError(ui("Use a CSV up to 2 MB / 1,000 rows."));
             return;
           }
           try {
             setContent(decodeImportFile(await file.arrayBuffer()));
           } catch {
-            setError("Could not read CSV.");
+            setError(ui("Could not read CSV."));
           }
         }}
       />
       <Button variant="outline" disabled={!content || busy} onClick={() => void act("preview")}>
-        {busy ? "Validating…" : "Validate & preview"}
+        {busy ? ui("Validating…") : ui("Validate & preview")}
       </Button>
       {error && (
         <p role="alert" className="text-sm text-destructive">
@@ -752,7 +777,7 @@ function ImportForm({ close, refresh }: Props) {
       {result && (
         <>
           <p className="text-sm">
-            {result.imported} new records · {result.skipped} already imported.
+            {result.imported} {ui("new records ·")} {result.skipped} {ui("already imported.")}
           </p>
           <div className="space-y-2">
             {result.sample.map((row) => (
@@ -762,7 +787,7 @@ function ImportForm({ close, refresh }: Props) {
             ))}
           </div>
           <Button disabled={busy || result.imported === 0} onClick={() => void act("import")}>
-            Import {result.imported} records
+            {ui("Import")} {result.imported} {ui("records")}
           </Button>
         </>
       )}

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Trash2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +8,8 @@ import { postJson, useApi } from "@/lib/use-api";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: string) => void }) {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<{
     attachments: { id: string; name: string; mime: string; size: number }[];
   }>(`/api/attachments?type=personal&id=${encodeURIComponent(id)}`);
@@ -62,8 +66,10 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
       }}
     >
       <div className="flex items-center justify-between">
-        <h3 className="font-medium">图片与附件</h3>
-        <span className="text-xs text-muted-foreground">{files.length} 个附件</span>
+        <h3 className="font-medium">{ui("图片与附件")}</h3>
+        <span className="text-xs text-muted-foreground">
+          {files.length} {ui("个附件")}
+        </span>
       </div>
       <button
         type="button"
@@ -77,12 +83,12 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
         }}
       >
         <ImagePlus className="size-6" />
-        {busy ? "正在上传…" : "点击、拖拽或在此粘贴图片"}
-        <span className="text-xs">PNG / JPG / WebP / PDF · 每个文件最多 8 MB</span>
+        {busy ? ui("正在上传…") : ui("点击、拖拽或在此粘贴图片")}
+        <span className="text-xs">{ui("PNG / JPG / WebP / PDF · 每个文件最多 8 MB")}</span>
       </button>
       <input
         ref={input}
-        aria-label="上传图片"
+        aria-label={ui("上传图片")}
         type="file"
         multiple
         accept="image/png,image/jpeg,image/webp,application/pdf"
@@ -102,7 +108,7 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
                 type="button"
                 className="w-full"
                 onClick={() => setSelected(f.id)}
-                aria-label={`放大 ${f.name}`}
+                aria-label={`${ui("放大")} ${f.name}`}
               >
                 <img
                   src={`/api/attachments/${f.id}`}
@@ -128,10 +134,10 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label={`删除附件 ${f.name}`}
+                aria-label={`${ui("删除附件")} ${f.name}`}
                 disabled={busy}
                 onClick={async () => {
-                  if (!confirm("删除这张图片/附件？")) return;
+                  if (!confirm(ui("删除这张图片/附件？"))) return;
                   try {
                     await postJson(`/api/attachments/${f.id}`, undefined, "DELETE");
                     refresh();
@@ -150,7 +156,7 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
                 size="sm"
                 onClick={() => onInsert(`\n![图片说明](/api/attachments/${f.id})\n`)}
               >
-                插入正文
+                {ui("插入正文")}
               </Button>
             )}
           </div>
@@ -160,7 +166,7 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
         <DialogContent className="max-w-[95vw] sm:max-w-[90vw]">
           <DialogTitle>{image?.name}</DialogTitle>
           <DialogDescription>
-            方向键切换图片 · {index + 1} / {images.length}
+            {ui("方向键切换图片 ·")} {index + 1} / {images.length}
           </DialogDescription>
           {image && (
             <img
@@ -172,10 +178,10 @@ export function PersonalMedia({ id, onInsert }: { id: string; onInsert?: (text: 
           <div className="flex justify-center gap-3">
             <Button variant="outline" onClick={() => move(-1)}>
               <ChevronLeft />
-              上一张
+              {ui("上一张")}
             </Button>
             <Button variant="outline" onClick={() => move(1)}>
-              下一张
+              {ui("下一张")}
               <ChevronRight />
             </Button>
           </div>

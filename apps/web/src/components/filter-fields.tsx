@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { OptionSelect } from "@/components/ui/option-select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -26,10 +28,12 @@ const FIELD_HINTS: Record<string, string> = {
 };
 export const fieldClass = "h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm";
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const { t: ui } = useI18n();
+
   return (
     <label className="journal-filter-field grid min-w-0 gap-1 text-xs text-muted-foreground">
       <span className="flex items-center gap-1.5">
-        {label}
+        {ui(label)}
         {FIELD_HINTS[label.split(" · ")[0]!] && (
           <HoverHint heading={label} content={FIELD_HINTS[label.split(" · ")[0]!]}>
             <span
@@ -53,6 +57,8 @@ export function FilterFields({
   value: AnalysisFilters;
   onChange: (v: AnalysisFilters) => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   const { data: accounts } = useApi<{
     accounts: { id: string; name: string; archivedAt: string | null }[];
   }>("/api/accounts");
@@ -61,18 +67,18 @@ export function FilterFields({
   );
   const set = (key: FilterKey, v: string) => onChange({ ...value, [key]: v });
   const input = (key: FilterKey, label: string, type = "text") => (
-    <Field key={key} label={label}>
+    <Field key={key} label={ui(label)}>
       <MonetaryField sensitive={/^(entry|exit|pnl)(Min|Max)$/.test(key)}>
         {type === "date" ? (
           <DatePicker
             value={value[key] ?? ""}
             onValueChange={(next) => set(key, next)}
-            label={label}
+            label={ui(label)}
           />
         ) : (
           <input
             className={fieldClass}
-            aria-label={label}
+            aria-label={ui(label)}
             type={type}
             step={type === "number" ? "any" : undefined}
             value={value[key] ?? ""}
@@ -83,17 +89,17 @@ export function FilterFields({
     </Field>
   );
   const select = (key: FilterKey, label: string, choices: [string, string][]) => (
-    <Field key={key} label={label}>
+    <Field key={key} label={ui(label)}>
       <span className="journal-filter-select relative block min-w-0">
         <OptionSelect
           className={fieldClass}
           value={value[key] ?? ""}
           onValueChange={(next) => set(key, next)}
         >
-          <option value="">All</option>
+          <option value="">{ui("All")}</option>
           {choices.map(([v, l]) => (
             <option key={v} value={v}>
-              {l}
+              {key === "playbookId" ? l : ui(l)}
             </option>
           ))}
         </OptionSelect>
@@ -137,7 +143,7 @@ export function FilterFields({
       </div>
       <fieldset className="journal-filter-accounts rounded-lg border p-3">
         <legend className="px-1 text-xs text-muted-foreground">
-          Accounts · none selected means all
+          {ui("Accounts · none selected means all")}
         </legend>
         <div className="flex flex-wrap gap-3">
           {accounts?.accounts
@@ -160,7 +166,7 @@ export function FilterFields({
       </fieldset>
       <details className="journal-filter-advanced">
         <summary className="flex cursor-pointer items-center justify-between gap-3 text-sm">
-          <span>Size, price, risk and time</span>
+          <span>{ui("Size, price, risk and time")}</span>
           <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 text-muted-foreground" />
         </summary>
         <div className="journal-filter-advanced-grid mt-3 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid-cols-4">
@@ -176,8 +182,8 @@ export function FilterFields({
               ["rating", "Rating"],
             ] as const
           ).flatMap(([k, l]) => [
-            input(`${k}Min` as FilterKey, `${l} · min`, "number"),
-            input(`${k}Max` as FilterKey, `${l} · max`, "number"),
+            input(`${k}Min` as FilterKey, `${ui(l)} · min`, "number"),
+            input(`${k}Max` as FilterKey, `${ui(l)} · max`, "number"),
           ])}
           {input("entryAfter", "Entry after", "time")}
           {input("entryBefore", "Entry before", "time")}
@@ -196,7 +202,7 @@ export function FilterFields({
                   set("weekdays", [...days].join(","));
                 }}
               />
-              {day}
+              {ui(day)}
             </label>
           ))}
         </div>

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { OptionSelect } from "@/components/ui/option-select";
 
 import { Suspense, useRef, useState } from "react";
@@ -39,6 +41,8 @@ export default function NotebookPage() {
 }
 
 function Notebook() {
+  const { t: ui, language } = useI18n();
+
   const [folder, setFolder] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -115,9 +119,12 @@ function Notebook() {
         onOpenChange={(open) => !open && !deletingFolder && setFolderToDelete(null)}
       >
         <DialogContent>
-          <DialogTitle>Delete “{folderToDelete?.name}”?</DialogTitle>
+          <DialogTitle>
+            {ui("Delete “")}
+            {folderToDelete?.name}”?
+          </DialogTitle>
           <DialogDescription>
-            The folder will be removed. Its notes will be kept in My notes.
+            {ui("The folder will be removed. Its notes will be kept in My notes.")}
           </DialogDescription>
           {deleteError && (
             <p role="alert" className="text-sm text-destructive">
@@ -130,22 +137,22 @@ function Notebook() {
               disabled={deletingFolder}
               onClick={() => setFolderToDelete(null)}
             >
-              Cancel
+              {ui("Cancel")}
             </Button>
             <Button
               variant="destructive"
               disabled={deletingFolder}
               onClick={() => void deleteFolder()}
             >
-              {deletingFolder ? "Deleting…" : "Delete folder"}
+              {deletingFolder ? ui("Deleting…") : ui("Delete folder")}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
       <Dialog open={folderOpen} onOpenChange={(open) => !creatingFolder && setFolderOpen(open)}>
         <DialogContent>
-          <DialogTitle>New folder</DialogTitle>
-          <DialogDescription>Organize your notes in a named folder.</DialogDescription>
+          <DialogTitle>{ui("New folder")}</DialogTitle>
+          <DialogDescription>{ui("Organize your notes in a named folder.")}</DialogDescription>
           <form
             className="space-y-4"
             onSubmit={(event) => {
@@ -154,7 +161,7 @@ function Notebook() {
             }}
           >
             <label className="block space-y-2 text-sm">
-              <span>Folder name</span>
+              <span>{ui("Folder name")}</span>
               <Input
                 autoFocus
                 value={folderName}
@@ -179,21 +186,21 @@ function Notebook() {
                 disabled={creatingFolder}
                 onClick={() => setFolderOpen(false)}
               >
-                Cancel
+                {ui("Cancel")}
               </Button>
               <Button type="submit" disabled={creatingFolder || !folderName.trim()}>
-                {creatingFolder ? "Creating…" : "Create folder"}
+                {creatingFolder ? ui("Creating…") : ui("Create folder")}
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
       <FilterBar
-        title="Notebook"
+        title={ui("Notebook")}
         actions={
           <Button size="sm" onClick={createNote}>
             <Plus />
-            New note
+            {ui("New note")}
           </Button>
         }
       />
@@ -208,7 +215,7 @@ function Notebook() {
             )}
             onClick={() => setFolder("all")}
           >
-            All notes
+            {ui("All notes")}
           </button>
           {data?.folders
             .filter((f) => f.id !== "all")
@@ -249,7 +256,7 @@ function Notebook() {
             }}
           >
             <FolderPlus />
-            New folder
+            {ui("New folder")}
           </Button>
         </div>
 
@@ -257,12 +264,12 @@ function Notebook() {
           <div className="sticky top-0 z-[1] space-y-2 border-b bg-background p-2">
             <div className="flex min-w-0 items-center gap-2 xl:hidden">
               <OptionSelect
-                aria-label="Note folder"
+                aria-label={ui("Note folder")}
                 value={folder}
                 onValueChange={(next) => setFolder(next)}
                 className="h-9 min-w-0 flex-1 rounded-lg border bg-card px-2 text-sm"
               >
-                <option value="all">All notes</option>
+                <option value="all">{ui("All notes")}</option>
                 {data?.folders
                   .filter((item) => item.id !== "all")
                   .map((item) => (
@@ -287,7 +294,7 @@ function Notebook() {
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 shrink-0"
-                aria-label="New folder"
+                aria-label={ui("New folder")}
                 onClick={() => {
                   setFolderError("");
                   setFolderOpen(true);
@@ -301,13 +308,15 @@ function Notebook() {
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search notes"
+                placeholder={ui("Search notes")}
                 className="pl-8"
               />
             </div>
           </div>
           {data?.notes.length === 0 && (
-            <p className="p-6 text-center text-sm text-muted-foreground">No notes here yet.</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">
+              {ui("No notes here yet.")}
+            </p>
           )}
           {data?.notes.map((note) => (
             <button
@@ -318,9 +327,9 @@ function Notebook() {
               )}
               onClick={() => setSelectedId(note.id)}
             >
-              <div className="truncate text-sm font-medium">{note.title || "Untitled"}</div>
+              <div className="truncate text-sm font-medium">{note.title || ui("Untitled")}</div>
               <div className="truncate text-xs text-muted-foreground">
-                {note.updatedAt.slice(0, 10)} · {note.content.slice(0, 60) || "empty"}
+                {note.updatedAt.slice(0, 10)} · {note.content.slice(0, 60) || ui("empty")}
               </div>
             </button>
           ))}
@@ -336,14 +345,14 @@ function Notebook() {
               onClick={() => setSelectedId(null)}
             >
               <ArrowLeft />
-              Back to notes
+              {ui("Back to notes")}
             </Button>
           )}
           {selected ? (
             <NoteEditor key={selected.id} note={selected} onChanged={refresh} />
           ) : (
             <p className="py-24 text-center text-sm text-muted-foreground">
-              Select or create a note.
+              {ui("Select or create a note.")}
             </p>
           )}
         </div>
@@ -353,6 +362,8 @@ function Notebook() {
 }
 
 function NoteEditor({ note, onChanged }: { note: NoteRow; onChanged: () => void }) {
+  const { t: ui, language } = useI18n();
+
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [mode, setMode] = useState<"edit" | "preview">(note.content.trim() ? "preview" : "edit");
@@ -375,7 +386,7 @@ function NoteEditor({ note, onChanged }: { note: NoteRow; onChanged: () => void 
               save(event.target.value, content);
             }}
             className="notebook-editor-title border-0 px-0 text-lg font-semibold shadow-none focus-visible:ring-0"
-            placeholder="Title"
+            placeholder={ui("Title")}
           />
           <Button
             type="button"
@@ -383,7 +394,7 @@ function NoteEditor({ note, onChanged }: { note: NoteRow; onChanged: () => void 
             size="sm"
             onClick={() => setMode(mode === "preview" ? "edit" : "preview")}
           >
-            {mode === "preview" ? "Edit" : "Preview"}
+            {mode === "preview" ? ui("Edit") : ui("Preview")}
           </Button>
           <VoiceNote
             onPrepare={() => editor.current?.focus()}
@@ -398,13 +409,13 @@ function NoteEditor({ note, onChanged }: { note: NoteRow; onChanged: () => void 
             size="sm"
             className="text-destructive"
             onClick={async () => {
-              if (confirm("Delete this note?")) {
+              if (confirm(ui("Delete this note?"))) {
                 await postJson(`/api/notes/${note.id}`, undefined, "DELETE");
                 onChanged();
               }
             }}
           >
-            Delete
+            {ui("Delete")}
           </Button>
         </div>
         <RichEditor
@@ -421,7 +432,7 @@ function NoteEditor({ note, onChanged }: { note: NoteRow; onChanged: () => void 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span role="status">{status}</span>
           <Button variant="ghost" size="sm" onClick={() => void flush()}>
-            Save now
+            {ui("Save now")}
           </Button>
         </div>
         <ReviewExport document={{ title: title || "Journal note", lines: [content] }} />

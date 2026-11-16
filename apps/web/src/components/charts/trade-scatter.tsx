@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import {
   CartesianGrid,
@@ -38,6 +39,8 @@ export function TradeScatter({
   timeZone: string;
   onSelect: (point: PlottedTrade) => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   const tokens = useVizTokens();
   const privateMode = usePrivacy();
   const groups = useMemo(
@@ -68,7 +71,9 @@ export function TradeScatter({
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart
           margin={{ top: 12, right: 24, bottom: 8, left: 0 }}
-          aria-label="Individual trade outcomes. Select a point to inspect; all trades also have links in the table below."
+          aria-label={ui(
+            "Individual trade outcomes. Select a point to inspect; all trades also have links in the table below.",
+          )}
         >
           <CartesianGrid stroke={tokens.gridline} />
           <XAxis
@@ -103,7 +108,9 @@ export function TradeScatter({
                   <p className="font-medium">
                     {point.symbol} · {point.direction}
                   </p>
-                  <p className="text-xs">Closed {date.format(new Date(point.closedAt))}</p>
+                  <p className="text-xs">
+                    {ui("Closed")} {date.format(new Date(point.closedAt))}
+                  </p>
                   <p>
                     {x === "durationMinutes"
                       ? `${point.x.toLocaleString(undefined, { maximumFractionDigits: 2 })} minutes`
@@ -113,13 +120,15 @@ export function TradeScatter({
                   </p>
                   <p>
                     {y === "netPnl"
-                      ? "Net P&L"
+                      ? ui("Net P&L")
                       : y === "realizedR"
-                        ? "Realized R"
+                        ? ui("Realized R")
                         : `Estimated ${y.toUpperCase()}`}
                     : {yLabel(point.y)}
                   </p>
-                  <p className="text-xs text-muted-foreground">Select to inspect this trade</p>
+                  <p className="text-xs text-muted-foreground">
+                    {ui("Select to inspect this trade")}
+                  </p>
                 </div>
               ) : null;
             }}

@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { forwardRef, useId, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import * as Popover from "@radix-ui/react-popover";
@@ -64,12 +65,14 @@ const cardIcons: Record<string, LucideIcon> = {
 };
 
 export function DashboardCustomizer(props: DashboardCustomizerProps) {
+  const { t: ui, language } = useI18n();
+
   return (
     <Popover.Root open={props.open} onOpenChange={props.onOpenChange}>
       <Popover.Trigger asChild>
         <Button type="button" variant="outline" size="sm" className="dashboard-customize-trigger">
           <Settings2 />
-          Customize
+          {ui("Customize")}
           <ChevronDown className="dashboard-customize-chevron" />
         </Button>
       </Popover.Trigger>

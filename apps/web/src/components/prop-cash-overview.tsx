@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import {
   Bar,
@@ -24,6 +25,8 @@ export function PropCashSummary({
   currency: string;
   privacy: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const money = (value: number) => (privacy ? "••••" : currency ? propMoney(value, currency) : "—");
   return (
     <div className="grid gap-3 md:grid-cols-3">
@@ -31,20 +34,20 @@ export function PropCashSummary({
         <CardContent className="p-5 sm:p-6">
           <p className="flex items-center gap-2 text-sm font-medium">
             <span className="h-2 w-2 rounded-full bg-[var(--loss)]" />
-            Money spent
+            {ui("Money spent")}
           </p>
           <p className="mt-3 break-words text-3xl font-semibold tracking-tight tabular-nums">
             {money(summary.spent)}
           </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            All fees, subscriptions and other costs
+            {ui("All fees, subscriptions and other costs")}
           </p>
           <div className="mt-4 flex flex-wrap justify-between gap-2 border-t pt-3 text-xs">
             <span className="text-muted-foreground">
-              Refunded <span className="text-foreground">{money(summary.refunds)}</span>
+              {ui("Refunded")} <span className="text-foreground">{money(summary.refunds)}</span>
             </span>
             <span className="text-muted-foreground">
-              Net cost <span className="text-foreground">{money(summary.netSpend)}</span>
+              {ui("Net cost")} <span className="text-foreground">{money(summary.netSpend)}</span>
             </span>
           </div>
         </CardContent>
@@ -53,20 +56,22 @@ export function PropCashSummary({
         <CardContent className="p-5 sm:p-6">
           <p className="flex items-center gap-2 text-sm font-medium">
             <span className="h-2 w-2 rounded-full bg-[var(--brand)]" />
-            Payouts received
+            {ui("Payouts received")}
           </p>
           <p className="mt-3 break-words text-3xl font-semibold tracking-tight tabular-nums">
             {money(summary.received)}
           </p>
-          <p className="mt-3 text-xs text-muted-foreground">Money received, after any reversals</p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {ui("Money received, after any reversals")}
+          </p>
           <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
-            Pending requests are tracked separately below.
+            {ui("Pending requests are tracked separately below.")}
           </p>
         </CardContent>
       </Card>
       <Card className="bg-muted/30">
         <CardContent className="p-5 sm:p-6">
-          <p className="text-sm font-medium">Net after costs</p>
+          <p className="text-sm font-medium">{ui("Net after costs")}</p>
           <p
             className="mt-3 break-words text-3xl font-semibold tracking-tight tabular-nums"
             style={{
@@ -83,10 +88,10 @@ export function PropCashSummary({
             {money(summary.net)}
           </p>
           <p className="mt-3 text-xs text-muted-foreground">
-            Payouts received + refunds − money spent
+            {ui("Payouts received + refunds − money spent")}
           </p>
           <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
-            Return on net cost{" "}
+            {ui("Return on net cost")}{" "}
             <span className="text-foreground">
               {privacy
                 ? "••••"
@@ -109,6 +114,8 @@ export function PropCashComparison({
   currency: string;
   privacy: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const t = useVizTokens();
   const divisor = currency ? 10 ** currencyDigits(currency) : 1;
   const rows = [...months]
@@ -119,29 +126,30 @@ export function PropCashComparison({
       <CardContent className="p-5 sm:p-6">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="text-base font-semibold">Spending vs payouts</h3>
+            <h3 className="text-base font-semibold">{ui("Spending vs payouts")}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Monthly cash flow{currency ? ` · ${currency}` : ""}
+              {ui("Monthly cash flow")}
+              {currency ? ` · ${currency}` : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-sm bg-[var(--loss)]" />
-              Money spent
+              {ui("Money spent")}
             </span>
             <span className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-sm bg-[var(--brand)]" />
-              Payouts received
+              {ui("Payouts received")}
             </span>
           </div>
         </div>
         {privacy || !currency || !rows.length ? (
           <p className="flex min-h-48 items-center justify-center text-center text-sm text-muted-foreground">
             {privacy
-              ? "Chart hidden in privacy mode."
+              ? ui("Chart hidden in privacy mode.")
               : !currency
-                ? "Choose a currency in Filters to compare spending and payouts."
-                : "Record an expense or a payout receipt to start your comparison."}
+                ? ui("Choose a currency in Filters to compare spending and payouts.")
+                : ui("Record an expense or a payout receipt to start your comparison.")}
           </p>
         ) : (
           <div className="h-64 min-w-0 sm:h-72">
@@ -193,9 +201,11 @@ export function PropCashComparison({
                               {propMoney(Math.round(Number(item.value) * divisor), currency)}
                             </p>
                           ))}
-                          <p>Refunds: {propMoney(payload[0]!.payload.refunds, currency)}</p>
+                          <p>
+                            {ui("Refunds:")} {propMoney(payload[0]!.payload.refunds, currency)}
+                          </p>
                           <p className="mt-1 border-t pt-1">
-                            Net after costs: {propMoney(payload[0]!.payload.net, currency)}
+                            {ui("Net after costs:")} {propMoney(payload[0]!.payload.net, currency)}
                           </p>
                         </div>
                       ) : null
@@ -223,7 +233,7 @@ export function PropCashComparison({
           </div>
         )}
         <p className="mt-4 text-xs text-muted-foreground">
-          Refunds reduce your net cost. Hover a month for refunds and the final net amount.
+          {ui("Refunds reduce your net cost. Hover a month for refunds and the final net amount.")}
         </p>
       </CardContent>
     </Card>

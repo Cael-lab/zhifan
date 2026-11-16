@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import Link from "next/link";
 import { PersonalOverview } from "@/components/personal-overview";
@@ -94,12 +95,14 @@ export default function DashboardPage() {
 }
 
 function Dashboard() {
+  const { t: ui, language } = useI18n();
+
   const { query } = useFilters();
   const { data, loading, error, refresh } = useApi<StatsPayload>(`/api/stats?${query}`);
 
   return (
     <>
-      <FilterBar title="我的交易工作台" actions={<AddTradeDialog onSaved={refresh} />} />
+      <FilterBar title={ui("我的交易工作台")} actions={<AddTradeDialog onSaved={refresh} />} />
       <PersonalOverview />
       <DashboardContent
         data={data}
@@ -125,20 +128,22 @@ function DashboardContent({
   refresh: () => void;
   query: string;
 }) {
+  const { t: ui, language } = useI18n();
+
   if (loading && !data) return <DashboardSkeleton />;
   if (!data)
     return (
       <div>
         <div className="space-y-3 p-4">
           <p role="alert" className="text-sm text-destructive">
-            {error ?? "Could not load the dashboard."}
+            {error ?? ui("Could not load the dashboard.")}
           </p>
           <button
             type="button"
             className="rounded-md border px-3 py-2 text-sm hover:bg-accent"
             onClick={refresh}
           >
-            Try again
+            {ui("Try again")}
           </button>
         </div>
       </div>
@@ -152,16 +157,19 @@ function DashboardContent({
         <div className="grid gap-3 p-4 sm:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>全部账户</CardTitle>
+              <CardTitle>{ui("全部账户")}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              {closed} closed trades · {closed ? fmtPercent(wins / closed) : "–"} trade win rate
+              {closed} {ui("closed trades ·")} {closed ? fmtPercent(wins / closed) : "–"}{" "}
+              {ui("trade win rate")}
             </CardContent>
           </Card>
           {data.currencyGroups.map((group) => (
             <Card key={group.currency}>
               <CardHeader>
-                <CardTitle>{group.currency} accounts</CardTitle>
+                <CardTitle>
+                  {group.currency} {ui("accounts")}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <Pnl
@@ -170,8 +178,8 @@ function DashboardContent({
                   className="text-2xl font-semibold"
                 />
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {group.metrics.closedTrades} closed trades · {fmtPercent(group.metrics.winRate)}{" "}
-                  trade win rate
+                  {group.metrics.closedTrades} {ui("closed trades ·")}{" "}
+                  {fmtPercent(group.metrics.winRate)} {ui("trade win rate")}
                 </p>
               </CardContent>
             </Card>
@@ -188,7 +196,7 @@ function DashboardContent({
     return query ? (
       <div>
         <p className="p-12 text-center text-sm text-muted-foreground">
-          No trades match these filters. Clear or adjust Filters to see more results.
+          {ui("No trades match these filters. Clear or adjust Filters to see more results.")}
         </p>
       </div>
     ) : (
@@ -235,7 +243,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="净盈亏"
+                  title={ui("净盈亏")}
                   icon={CircleDollarSign}
                   hint="Realized profit and loss net of fees, over the selected range."
                 />
@@ -256,12 +264,12 @@ function DashboardContent({
                       <MonetaryValue>
                         {fmtMoney(Math.abs(weekDelta), currency).replace("+", "")}
                       </MonetaryValue>{" "}
-                      vs prior 7d
+                      {ui("vs prior 7d")}
                     </div>
                   )}
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {m.closedTrades} closed trades ·{" "}
-                    <MonetaryValue>{fmtMoney(m.fees, currency)}</MonetaryValue> fees
+                    {m.closedTrades} {ui("closed trades ·")}{" "}
+                    <MonetaryValue>{fmtMoney(m.fees, currency)}</MonetaryValue> {ui("fees")}
                   </div>
                 </CardContent>
               </Card>
@@ -275,16 +283,22 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="交易胜率"
+                  title={ui("交易胜率")}
                   icon={Target}
                   hint="Winning trades divided by all closed trades, including breakevens."
                 />
                 <CardContent className="flex items-center justify-between gap-2">
-                  <Gauge value={m.winRate} label="Trade win rate" />
+                  <Gauge value={m.winRate} label={ui("Trade win rate")} />
                   <div className="space-y-0.5 text-xs text-muted-foreground">
-                    <div>{m.wins} W</div>
-                    <div>{m.breakevens} BE</div>
-                    <div>{m.losses} L</div>
+                    <div>
+                      {m.wins} {ui("W")}
+                    </div>
+                    <div>
+                      {m.breakevens} {ui("BE")}
+                    </div>
+                    <div>
+                      {m.losses} {ui("L")}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -298,7 +312,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="盈利因子"
+                  title={ui("盈利因子")}
                   icon={Scale}
                   hint="Gross profit ÷ gross loss. Above 1 means the wins outweigh the losses."
                 />
@@ -311,7 +325,7 @@ function DashboardContent({
                         : fmtNumber(m.profitFactor)}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    gross profit ÷ gross loss
+                    {ui("gross profit ÷ gross loss")}
                   </div>
                 </CardContent>
               </Card>
@@ -325,13 +339,15 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="盈利日占比"
+                  title={ui("盈利日占比")}
                   icon={CalendarCheck2}
                   hint="Green trading days ÷ all trading days in the selected range."
                 />
                 <CardContent className="flex items-center justify-between gap-2">
-                  <Gauge value={m.dayWinRate} label="Day win rate" />
-                  <div className="text-xs text-muted-foreground">{m.tradingDays} days</div>
+                  <Gauge value={m.dayWinRate} label={ui("Day win rate")} />
+                  <div className="text-xs text-muted-foreground">
+                    {m.tradingDays} {ui("days")}
+                  </div>
                 </CardContent>
               </Card>
             ),
@@ -344,7 +360,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="平均盈利 / 平均亏损"
+                  title={ui("平均盈利 / 平均亏损")}
                   icon={ArrowUpDown}
                   hint="Average winning trade ÷ average losing trade. The bar shows the two to scale."
                 />
@@ -356,7 +372,7 @@ function DashboardContent({
                     <div
                       className="journal-progress-visual mt-2 flex h-1.5 gap-0.5"
                       role="img"
-                      aria-label="Average win vs average loss, to scale"
+                      aria-label={ui("Average win vs average loss, to scale")}
                     >
                       <span
                         className="rounded-full bg-profit"
@@ -375,7 +391,7 @@ function DashboardContent({
                         <MonetaryValue>{fmtMoney(m.avgWin, currency)}</MonetaryValue>
                       )}
                     </span>
-                    {" avg win · "}
+                    {ui(" avg win · ")}
                     <span className="text-loss">
                       {m.avgLoss === null ? (
                         "–"
@@ -383,7 +399,7 @@ function DashboardContent({
                         <MonetaryValue>{fmtMoney(-m.avgLoss, currency)}</MonetaryValue>
                       )}
                     </span>
-                    {" avg loss"}
+                    {ui(" avg loss")}
                   </div>
                 </CardContent>
               </Card>
@@ -398,10 +414,11 @@ function DashboardContent({
               <Card className="dashboard-visual-card h-full">
                 <CardHeader className="flex-row items-center justify-between">
                   <div className="flex min-w-0 items-center gap-1">
-                    <CardTitle>Edge Score</CardTitle>
+                    <CardTitle>{ui("Edge Score")}</CardTitle>
                     <HelpHint heading="Edge Score">
-                      A 0–100 score combining win rate, profit factor, average win/loss, drawdown,
-                      recovery, and consistency. Requires at least five closed trades.
+                      {ui(
+                        "A 0–100 score combining win rate, profit factor, average win/loss, drawdown, recovery, and consistency. Requires at least five closed trades.",
+                      )}
                     </HelpHint>
                   </div>
                   <span className="text-2xl font-semibold tracking-tight tnum">
@@ -416,14 +433,14 @@ function DashboardContent({
                 <CardContent className="dashboard-visual-card-content">
                   {edgeScore.score === null ? (
                     <p className="py-8 text-center text-sm text-muted-foreground">
-                      Needs 5+ closed trades. The formula is open —{" "}
+                      {ui("Needs 5+ closed trades. The formula is open —")}{" "}
                       <a
                         className="underline"
                         href="https://github.com/LuxAlgo/trade-journal/blob/main/docs/edge-score.md"
                         target="_blank"
                         rel="noreferrer"
                       >
-                        read it
+                        {ui("read it")}
                       </a>
                       .
                     </p>
@@ -442,10 +459,11 @@ function DashboardContent({
             content: (
               <Card className="dashboard-visual-card h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>每日累计净盈亏</CardTitle>
+                  <CardTitle>{ui("每日累计净盈亏")}</CardTitle>
                   <HelpHint heading="Cumulative P&L">
-                    Running total of net profit and loss over the selected period. The drawdown bars
-                    below show declines from the running equity peak.
+                    {ui(
+                      "Running total of net profit and loss over the selected period. The drawdown bars below show declines from the running equity peak.",
+                    )}
                   </HelpHint>
                 </CardHeader>
                 <CardContent>
@@ -468,10 +486,11 @@ function DashboardContent({
             content: (
               <Card className="dashboard-visual-card h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>每日净盈亏</CardTitle>
+                  <CardTitle>{ui("每日净盈亏")}</CardTitle>
                   <HelpHint heading="Daily P&L">
-                    Net profit or loss for each trading day. Bars above zero are profitable; bars
-                    below zero are losses.
+                    {ui(
+                      "Net profit or loss for each trading day. Bars above zero are profitable; bars below zero are losses.",
+                    )}
                   </HelpHint>
                 </CardHeader>
                 <CardContent className="dashboard-visual-card-content">
@@ -494,7 +513,7 @@ function DashboardContent({
                 <CardHeader className="flex-row items-center justify-between">
                   <CardTitle>
                     {new Date(Date.UTC(data.calendar.year, data.calendar.month - 1)).toLocaleString(
-                      "en-US",
+                      language === "en" ? "en-US" : "zh-CN",
                       { month: "long", year: "numeric", timeZone: "UTC" },
                     )}
                   </CardTitle>
@@ -502,7 +521,7 @@ function DashboardContent({
                     href={`/calendar?${query}`}
                     className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
                   >
-                    Full calendar
+                    {ui("Full calendar")}
                   </Link>
                 </CardHeader>
                 <CardContent>
@@ -524,20 +543,22 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <CardHeader>
-                  <CardTitle>交易动态</CardTitle>
+                  <CardTitle>{ui("交易动态")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="recent">
                     <TabsList className="h-8">
                       <TabsTrigger value="recent" className="text-xs">
-                        Recent trades
+                        {ui("Recent trades")}
                       </TabsTrigger>
                       <TabsTrigger value="open" className="text-xs">
-                        Open positions
+                        {ui("Open positions")}
                       </TabsTrigger>
                     </TabsList>
                     <TabsContent value="recent" className="space-y-1">
-                      {data.recentTrades.length === 0 && <Empty label="No closed trades yet" />}
+                      {data.recentTrades.length === 0 && (
+                        <Empty label={ui("No closed trades yet")} />
+                      )}
                       {data.recentTrades.map((trade) => (
                         <Link
                           key={trade.key}
@@ -554,7 +575,7 @@ function DashboardContent({
                                     : "secondary"
                               }
                             >
-                              {trade.status.toUpperCase()}
+                              {ui(trade.status.toUpperCase())}
                             </Badge>
                             {trade.symbol}
                           </span>
@@ -569,7 +590,7 @@ function DashboardContent({
                     </TabsContent>
                     <TabsContent value="open" className="space-y-1">
                       {data.openPositions.length === 0 && (
-                        <Empty label="Flat — no open positions" />
+                        <Empty label={ui("Flat — no open positions")} />
                       )}
                       {data.openPositions.map((position) => (
                         <div
@@ -577,7 +598,9 @@ function DashboardContent({
                           className="dashboard-activity-row flex items-center justify-between rounded-md px-2 py-1.5 text-sm"
                         >
                           <span className="flex items-center gap-2">
-                            <Badge variant="secondary">{position.direction.toUpperCase()}</Badge>
+                            <Badge variant="secondary">
+                              {ui(position.direction.toUpperCase())}
+                            </Badge>
                             {position.symbol}
                           </span>
                           <span className="tnum text-xs text-muted-foreground">
@@ -602,7 +625,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="最大回撤"
+                  title={ui("最大回撤")}
                   icon={TrendingDown}
                   hint="Largest peak-to-trough drop of the cumulative P&L curve."
                 />
@@ -612,7 +635,7 @@ function DashboardContent({
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {m.maxDrawdownPct === null
-                      ? "set an initial balance for %"
+                      ? ui("set an initial balance for %")
                       : fmtPercent(m.maxDrawdownPct)}
                     {m.recoveryFactor !== null && ` · recovery ${fmtNumber(m.recoveryFactor)}x`}
                   </div>
@@ -628,7 +651,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="连续盈亏"
+                  title={ui("连续盈亏")}
                   icon={Flame}
                   hint="Current run of consecutive wins (W) or losses (L), with the best and worst runs."
                 />
@@ -641,7 +664,8 @@ function DashboardContent({
                         : "–"}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    best {m.maxWinStreak}W · worst {m.maxLossStreak}L
+                    {ui("best")} {m.maxWinStreak}
+                    {ui("W · worst")} {m.maxLossStreak} {ui("L")}
                   </div>
                 </CardContent>
               </Card>
@@ -655,7 +679,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="每笔期望收益"
+                  title={ui("每笔期望收益")}
                   icon={Sigma}
                   hint="Average net P&L per closed trade: what one more trade is worth on your numbers."
                 />
@@ -672,7 +696,7 @@ function DashboardContent({
                   <div className="mt-1 text-xs text-muted-foreground">
                     {m.avgRealizedR !== null && m.tradesWithRisk > 0
                       ? `avg ${fmtNumber(m.avgRealizedR)}R over ${m.tradesWithRisk} risk-tagged trades`
-                      : "tag stop-losses to unlock R multiples"}
+                      : ui("tag stop-losses to unlock R multiples")}
                   </div>
                 </CardContent>
               </Card>
@@ -686,14 +710,14 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="平均持仓时间"
+                  title={ui("平均持仓时间")}
                   icon={Timer}
                   hint="Average time from first entry fill to final exit."
                 />
                 <CardContent>
                   <div className="text-xl font-semibold tnum">{fmtDuration(m.avgDurationMs)}</div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    winners vs losers in Reports
+                    {ui("winners vs losers in Reports")}
                   </div>
                 </CardContent>
               </Card>
@@ -707,7 +731,7 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <StatHeader
-                  title="最佳 / 最差交易日"
+                  title={ui("最佳 / 最差交易日")}
                   icon={Trophy}
                   hint="Highest and lowest single-day net P&L in the selected range."
                 />
@@ -746,10 +770,11 @@ function DashboardContent({
             content: (
               <Card className="h-full">
                 <CardHeader className="flex-row items-center justify-between">
-                  <CardTitle>交易时段表现</CardTitle>
+                  <CardTitle>{ui("交易时段表现")}</CardTitle>
                   <HelpHint heading="Trade time performance">
-                    Trades grouped by their opening hour. The upper chart shows net P&L; the lower
-                    chart shows trade count.
+                    {ui(
+                      "Trades grouped by their opening hour. The upper chart shows net P&L; the lower chart shows trade count.",
+                    )}
                   </HelpHint>
                 </CardHeader>
                 <CardContent>
@@ -781,16 +806,17 @@ function StatHeader({
   hint: string;
   icon: React.ComponentType<{ className?: string }>;
 }) {
+  const { t: ui } = useI18n();
   return (
     <CardHeader className="flex-row items-center justify-between space-y-0">
-      <CardTitle>{title}</CardTitle>
+      <CardTitle>{ui(title)}</CardTitle>
       <Tooltip>
         <TooltipTrigger className="cursor-help" aria-label={`About ${title}`}>
           <Icon className="h-3.5 w-3.5 text-muted-foreground/70" />
         </TooltipTrigger>
         <TooltipContent>
-          <div className="mb-1 font-semibold">{title}</div>
-          <div className="text-muted-foreground">{hint}</div>
+          <div className="mb-1 font-semibold">{ui(title)}</div>
+          <div className="text-muted-foreground">{ui(hint)}</div>
         </TooltipContent>
       </Tooltip>
     </CardHeader>
@@ -798,10 +824,14 @@ function StatHeader({
 }
 
 function Empty({ label }: { label: string }) {
-  return <p className="px-2 py-6 text-center text-sm text-muted-foreground">{label}</p>;
+  const { t: ui } = useI18n();
+
+  return <p className="px-2 py-6 text-center text-sm text-muted-foreground">{ui(label)}</p>;
 }
 
 function EmptyState() {
+  const { t: ui, language } = useI18n();
+
   const [loadingDemo, setLoadingDemo] = useState(false);
   const loadDemo = async () => {
     setLoadingDemo(true);
@@ -815,27 +845,27 @@ function EmptyState() {
   return (
     <div>
       <div className="flex flex-col items-center justify-center gap-3 px-4 py-24 text-center">
-        <h2 className="text-xl font-semibold">开始记录你的第一笔交易</h2>
+        <h2 className="text-xl font-semibold">{ui("开始记录你的第一笔交易")}</h2>
         <p className="max-w-md text-sm text-muted-foreground">
-          创建交易账户后，可以手动录入成交、导入历史账单，或连接受支持的券商同步数据。
+          {ui("创建交易账户后，可以手动录入成交、导入历史账单，或连接受支持的券商同步数据。")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-2">
           <Link
             href="/import"
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            导入或录入第一笔交易
+            {ui("导入或录入第一笔交易")}
           </Link>
           <button
             onClick={loadDemo}
             disabled={loadingDemo}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
           >
-            {loadingDemo ? "正在加载…" : "体验示例交易"}
+            {loadingDemo ? ui("正在加载…") : ui("体验示例交易")}
           </button>
         </div>
         <p className="text-xs text-muted-foreground">
-          示例交易会放入独立账户，可随时在「交易账户」中删除。
+          {ui("示例交易会放入独立账户，可随时在「交易账户」中删除。")}
         </p>
       </div>
     </div>

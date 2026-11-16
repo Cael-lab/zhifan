@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { Suspense, useState } from "react";
 import { Archive, ArchiveRestore, Plus, RefreshCw, Trash2 } from "lucide-react";
@@ -50,6 +51,8 @@ export default function AccountsPage() {
 }
 
 function Accounts() {
+  const { t: ui, language } = useI18n();
+
   const { data, refresh } = useApi<{ accounts: AccountRow[] }>("/api/accounts");
   const [syncing, setSyncing] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -80,20 +83,20 @@ function Accounts() {
   return (
     <div>
       <FilterBar
-        title="Accounts"
+        title={ui("Accounts")}
         actions={
           <Button size="sm" onClick={() => setCreating(true)}>
             <Plus />
-            New account
+            {ui("New account")}
           </Button>
         }
       />
       <Dialog open={creating} onOpenChange={setCreating}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>New account</DialogTitle>
+            <DialogTitle>{ui("New account")}</DialogTitle>
             <DialogDescription>
-              Create an account for manual trades or file imports.
+              {ui("Create an account for manual trades or file imports.")}
             </DialogDescription>
           </DialogHeader>
           <AccountCreateForm
@@ -108,7 +111,7 @@ function Accounts() {
       <div className="grid gap-3 p-4 md:grid-cols-2">
         {data?.accounts.length === 0 && (
           <p className="col-span-full py-16 text-center text-sm text-muted-foreground">
-            No accounts yet — use New account to create your first one.
+            {ui("No accounts yet — use New account to create your first one.")}
           </p>
         )}
         {data?.accounts.map((account) => (
@@ -133,7 +136,7 @@ function Accounts() {
                     className="h-8 w-8"
                     disabled={syncing === account.id}
                     onClick={() => void sync(account.id)}
-                    title="Sync now"
+                    title={ui("Sync now")}
                   >
                     <RefreshCw className={syncing === account.id ? "animate-spin" : undefined} />
                   </Button>
@@ -142,7 +145,7 @@ function Accounts() {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  title={account.archivedAt ? "Unarchive" : "Archive"}
+                  title={account.archivedAt ? ui("Unarchive") : ui("Archive")}
                   onClick={() =>
                     void action(account.id, {
                       action: account.archivedAt ? "unarchive" : "archive",
@@ -155,7 +158,7 @@ function Accounts() {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  title="Delete account"
+                  title={ui("Delete account")}
                   onClick={async () => {
                     if (
                       confirm(`Delete "${account.name}" and ALL its trades? This cannot be undone.`)
@@ -172,12 +175,12 @@ function Accounts() {
             <CardContent className="space-y-3">
               {account.snapshot && (
                 <div className="text-sm">
-                  Broker equity:{" "}
+                  {ui("Broker equity:")}{" "}
                   <span className="tnum font-medium">
                     <MonetaryValue>{fmtMoney(account.snapshot.equity)}</MonetaryValue>
                   </span>
                   <span className="ml-2 text-xs text-muted-foreground">
-                    {account.snapshot.positions.length} open positions · synced{" "}
+                    {account.snapshot.positions.length} {ui("open positions · synced")}{" "}
                     {account.lastSyncAt?.slice(0, 16).replace("T", " ")}
                   </span>
                 </div>
@@ -185,12 +188,12 @@ function Accounts() {
               <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2">
                 <div className="min-w-0">
                   <label className="mb-1 block text-xs text-muted-foreground">
-                    Initial balance (anchors drawdown %)
+                    {ui("Initial balance (anchors drawdown %)")}
                   </label>
                   <MonetaryField>
                     <Input
                       defaultValue={account.initialBalance || ""}
-                      placeholder="0"
+                      placeholder={ui("0")}
                       inputMode="decimal"
                       onBlur={async (event) => {
                         const value = Number(event.target.value || 0);
@@ -208,7 +211,7 @@ function Accounts() {
                 </div>
                 <div className="min-w-0">
                   <label className="mb-1 block text-xs text-muted-foreground">
-                    Profit calculation
+                    {ui("Profit calculation")}
                   </label>
                   <Select
                     value={account.profitCalcMethod}
@@ -225,9 +228,9 @@ function Accounts() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fifo">FIFO</SelectItem>
-                      <SelectItem value="lifo">LIFO</SelectItem>
-                      <SelectItem value="wavg">Weighted average</SelectItem>
+                      <SelectItem value="fifo">{ui("FIFO")}</SelectItem>
+                      <SelectItem value="lifo">{ui("LIFO")}</SelectItem>
+                      <SelectItem value="wavg">{ui("Weighted average")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -242,14 +245,14 @@ function Accounts() {
                     }
                   }}
                 >
-                  Clear trades
+                  {ui("Clear trades")}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={async () => {
                     const others = data.accounts.filter((candidate) => candidate.id !== account.id);
-                    if (others.length === 0) return alert("No other account to transfer into.");
+                    if (others.length === 0) return alert(ui("No other account to transfer into."));
                     const target = prompt(
                       `Transfer all data into which account?\n${others.map((candidate, index) => `${index + 1}. ${candidate.name}`).join("\n")}\n\nEnter a number:`,
                     );
@@ -263,7 +266,7 @@ function Accounts() {
                     }
                   }}
                 >
-                  Transfer data
+                  {ui("Transfer data")}
                 </Button>
               </div>
             </CardContent>

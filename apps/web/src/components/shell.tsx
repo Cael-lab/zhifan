@@ -1,4 +1,5 @@
 "use client";
+import { useI18n, LanguageSwitch } from "@/components/language";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -67,6 +68,8 @@ function NavLink({
   active: boolean;
   collapsed?: boolean;
 }) {
+  const { t: ui } = useI18n();
+
   return (
     <HoverHint content={collapsed ? label : null} side="right">
       <Link
@@ -80,13 +83,15 @@ function NavLink({
         )}
       >
         <Icon className={cn("h-4 w-4", active && "text-brand")} />
-        <span className="journal-sidebar-label">{label}</span>
+        <span className="journal-sidebar-label">{ui(label)}</span>
       </Link>
     </HoverHint>
   );
 }
 
 export function Shell({ children }: { children: React.ReactNode }) {
+  const { t: ui, language } = useI18n();
+
   const pathname = usePathname();
   const search = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -146,10 +151,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
     if (value) filterQuery.set(key, value);
   }
   if (search.get("range")) filterQuery.set("range", search.get("range")!);
-  if (pathname === "/login") return <>{children}</>;
+  if (pathname === "/login")
+    return (
+      <>
+        <div className="fixed right-4 top-4 z-50">
+          <LanguageSwitch />
+        </div>
+        {children}
+      </>
+    );
   const navigation = (collapsed = false) => (
     <nav
-      aria-label="Journal navigation"
+      aria-label={ui("Journal navigation")}
       className="journal-sidebar-navigation min-h-0 flex-1 space-y-0.5 overflow-x-hidden overflow-y-auto overscroll-contain p-2"
       onClick={(event) => {
         if ((event.target as HTMLElement).closest("a")) setMenuOpen(false);
@@ -159,7 +172,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <NavLink
           key={href}
           href={filterQuery.size ? `${href}?${filterQuery}` : href}
-          label={label}
+          label={ui(label)}
           icon={icon}
           collapsed={collapsed}
           active={href === "/" ? pathname === "/" : pathname.startsWith(href)}
@@ -170,7 +183,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <NavLink
           key={href}
           href={filterQuery.size ? `${href}?${filterQuery}` : href}
-          label={label}
+          label={ui(label)}
           icon={icon}
           collapsed={collapsed}
           active={pathname.startsWith(href)}
@@ -181,17 +194,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const footer = (
     <div className="journal-sidebar-footer space-y-1 border-t p-3 text-xs text-muted-foreground">
       <div>
-        基于{" "}
+        {ui("基于")}{" "}
         <a
           href="https://github.com/LuxAlgo/trade-journal"
           className="underline underline-offset-2 hover:text-foreground"
           target="_blank"
           rel="noreferrer"
         >
-          LuxAlgo Trade Journal
+          {ui("LuxAlgo Trade Journal")}
         </a>
       </div>
-      <div>知返 · 个人交易与学习空间</div>
+      <div>{ui("知返 · 个人交易与学习空间")}</div>
     </div>
   );
   return (
@@ -203,7 +216,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               variant="ghost"
               size="icon"
               className="h-9 w-9 shrink-0"
-              aria-label="Open navigation"
+              aria-label={ui("Open navigation")}
             >
               <Menu />
             </Button>
@@ -217,14 +230,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <div className="flex h-14 shrink-0 items-center gap-2.5 border-b px-4">
                 <LuxAlgoMark className="h-[18px] w-5" />
                 <DialogPrimitive.Title className="text-sm font-semibold">
-                  知返
+                  {ui("知返")}
                 </DialogPrimitive.Title>
                 <DialogPrimitive.Close asChild>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="ml-auto h-8 w-8"
-                    aria-label="Close navigation"
+                    aria-label={ui("Close navigation")}
                   >
                     <X />
                   </Button>
@@ -243,9 +256,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
           className="mr-auto flex min-w-0 items-center gap-2 text-sm font-semibold tracking-tight"
         >
           <LuxAlgoMark className="hidden h-4 w-[18px] shrink-0 min-[380px]:block" />
-          <span className="truncate">知返</span>
+          <span className="truncate">{ui("知返")}</span>
         </Link>
-        <PrivacyToggle compact />
+        <LanguageSwitch compact />
+        <PrivacyToggle iconOnly />
         <ThemeToggle iconOnly />
       </header>
       <aside
@@ -257,7 +271,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <Link href="/" className="journal-sidebar-home flex h-full min-w-0 items-center gap-2.5">
             <LuxAlgoMark className="h-[18px] w-5 shrink-0" />
             <span className="journal-sidebar-brand-label text-sm font-semibold tracking-tight">
-              知返
+              {ui("知返")}
             </span>
           </Link>
           <Button
@@ -266,7 +280,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             size="icon"
             className="journal-sidebar-trigger absolute h-7 w-7 rounded-full bg-background shadow-sm"
             onClick={toggleSidebar}
-            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={sidebarCollapsed ? ui("Expand sidebar") : ui("Collapse sidebar")}
             aria-expanded={!sidebarCollapsed}
             aria-keyshortcuts="Meta+B Control+B"
             title={`${sidebarCollapsed ? "Expand" : "Collapse"} sidebar (⌘B)`}
@@ -281,6 +295,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         {navigation(sidebarCollapsed)}
         <div className="journal-sidebar-privacy border-t p-3">
           <div className="w-full space-y-1">
+            <LanguageSwitch iconOnly={sidebarCollapsed} />
             <ThemeToggle iconOnly={sidebarCollapsed} />
             <PrivacyToggle iconOnly={sidebarCollapsed} />
           </div>

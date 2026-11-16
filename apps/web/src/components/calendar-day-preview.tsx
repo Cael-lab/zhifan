@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import type { CalendarPnlPoint } from "@/lib/calendar-insights";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,8 @@ export function CalendarDayPreview({
   currency: string;
   monetary: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const low = Math.min(0, ...points.map((point) => point.cumNetPnl));
   const high = Math.max(0, ...points.map((point) => point.cumNetPnl));
   const y = (value: number) => (high === low ? 50 : 88 - ((value - low) / (high - low)) * 76);
@@ -30,11 +33,11 @@ export function CalendarDayPreview({
   return (
     <div className="w-64 max-w-full">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs">Running P&L</span>
+        <span className="text-xs">{ui("Running P&L")}</span>
         {monetary ? (
           <Pnl value={total} currency={currency} className="text-sm font-semibold" />
         ) : (
-          <span className="text-xs">Multiple currencies</span>
+          <span className="text-xs">{ui("Multiple currencies")}</span>
         )}
       </div>
       {monetary && points.length > 0 ? (
@@ -69,18 +72,19 @@ export function CalendarDayPreview({
             <circle cx="256" cy={y(points.at(-1)!.cumNetPnl)} r="3" fill="currentColor" />
           </svg>
           <div className="flex justify-between text-[10px]">
-            <span>Before first close</span>
-            <span>After last close</span>
+            <span>{ui("Before first close")}</span>
+            <span>{ui("After last close")}</span>
           </div>
           <p className="mt-2 text-[11px]">
-            {trades} closed trade{trades === 1 ? "" : "s"} · Net of fees
+            {trades} {ui("closed trade")}
+            {trades === 1 ? "" : ui("s")} {ui("· Net of fees")}
           </p>
         </>
       ) : (
         <p className="mt-3 text-xs">
           {!monetary
-            ? "Select accounts with one currency to view the running P&L."
-            : "No closed trades on this day."}
+            ? ui("Select accounts with one currency to view the running P&L.")
+            : ui("No closed trades on this day.")}
         </p>
       )}
     </div>

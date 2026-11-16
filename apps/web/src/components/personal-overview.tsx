@@ -1,11 +1,21 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import Link from "next/link";
 import { BookOpen, NotebookPen, ArrowUpRight } from "lucide-react";
 import { useApi } from "@/lib/use-api";
 import type { PersonalEntry } from "@/lib/personal";
 export function PersonalOverview() {
+  const { t: ui, language } = useI18n();
+
   const { data, error } = useApi<{ entries: PersonalEntry[] }>("/api/personal");
-  if (error) return <p className="px-5 text-sm text-destructive">学习记录加载失败：{error}</p>;
+  if (error)
+    return (
+      <p className="px-5 text-sm text-destructive">
+        {ui("学习记录加载失败：")}
+        {error}
+      </p>
+    );
   const entries = data?.entries ?? [];
   return (
     <div className="grid gap-3 p-4 lg:grid-cols-2">
@@ -21,11 +31,11 @@ export function PersonalOverview() {
                 ) : (
                   <NotebookPen className="size-4 text-brand" />
                 )}
-                {kind === "knowledge" ? "继续学习" : "最近日记"}
+                {kind === "knowledge" ? ui("继续学习") : ui("最近日记")}
                 <span className="text-xs text-muted-foreground">{rows.length}</span>
               </h2>
               <Link className="text-xs text-brand" href={href}>
-                查看全部 →
+                {ui("查看全部 →")}
               </Link>
             </div>
             {rows.slice(0, 3).map((e) => (
@@ -43,7 +53,9 @@ export function PersonalOverview() {
                 href={href}
                 className="flex items-center justify-between rounded-lg border border-dashed p-5 text-sm text-muted-foreground"
               >
-                {kind === "knowledge" ? "创建第一个知识点，收集相关案例" : "写下今天的学习与想法"}
+                {kind === "knowledge"
+                  ? ui("创建第一个知识点，收集相关案例")
+                  : ui("写下今天的学习与想法")}
                 <ArrowUpRight className="size-4" />
               </Link>
             )}

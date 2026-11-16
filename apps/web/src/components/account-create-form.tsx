@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ export function AccountCreateForm({
   className?: string;
   showTitle?: boolean;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [balance, setBalance] = useState("0");
@@ -47,7 +50,7 @@ export function AccountCreateForm({
       return;
     setSaving(true);
     onSavingChange?.(true);
-    setError("");
+    setError(ui(""));
     try {
       const result = await postJson<{ id: string }>("/api/accounts", {
         name: name.trim(),
@@ -73,10 +76,10 @@ export function AccountCreateForm({
         if (!saving) void create();
       }}
     >
-      {showTitle && <h3 className="text-sm font-medium">Create account</h3>}
+      {showTitle && <h3 className="text-sm font-medium">{ui("Create account")}</h3>}
       {!kind && (
         <div className="space-y-1">
-          <Label htmlFor={`${fieldId}-kind`}>Account type</Label>
+          <Label htmlFor={`${fieldId}-kind`}>{ui("Account type")}</Label>
           <select
             id={`${fieldId}-kind`}
             className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -84,14 +87,14 @@ export function AccountCreateForm({
             disabled={saving}
             onChange={(event) => setAccountKind(event.target.value as "manual" | "import")}
           >
-            <option value="manual">Manual trades</option>
-            <option value="import">File import</option>
+            <option value="manual">{ui("Manual trades")}</option>
+            <option value="import">{ui("File import")}</option>
           </select>
         </div>
       )}
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="space-y-1">
-          <Label htmlFor={`${fieldId}-name`}>Account name</Label>
+          <Label htmlFor={`${fieldId}-name`}>{ui("Account name")}</Label>
           <Input
             id={`${fieldId}-name`}
             autoFocus
@@ -100,11 +103,11 @@ export function AccountCreateForm({
             value={name}
             onChange={(event) => setName(event.target.value)}
             disabled={saving}
-            placeholder="Trading test account"
+            placeholder={ui("Trading test account")}
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor={`${fieldId}-currency`}>Currency</Label>
+          <Label htmlFor={`${fieldId}-currency`}>{ui("Currency")}</Label>
           <CurrencyPicker
             id={`${fieldId}-currency`}
             value={currency}
@@ -113,7 +116,7 @@ export function AccountCreateForm({
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor={`${fieldId}-balance`}>Starting balance</Label>
+          <Label htmlFor={`${fieldId}-balance`}>{ui("Starting balance")}</Label>
           <Input
             id={`${fieldId}-balance`}
             required
@@ -142,7 +145,7 @@ export function AccountCreateForm({
           Number(balance) < 0
         }
       >
-        {saving ? "Creating…" : "Create account"}
+        {saving ? ui("Creating…") : ui("Create account")}
       </Button>
     </form>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
@@ -14,6 +15,8 @@ export function VoiceNote({
   onText: (text: string) => void;
   onPrepare: () => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [state, setState] = useState<"idle" | "starting" | "listening">("idle");
   const [error, setError] = useState("");
   const [keyboardHint, setKeyboardHint] = useState(false);
@@ -32,7 +35,7 @@ export function VoiceNote({
     }
     session.current?.dispose();
     setKeyboardHint(false);
-    setError("");
+    setError(ui(""));
     onPrepare();
     const speechWindow = window as unknown as {
       SpeechRecognition?: new () => SpeechRecognizer;
@@ -65,7 +68,7 @@ export function VoiceNote({
     <Popover.Root
       open={Boolean(error)}
       onOpenChange={(open) => {
-        if (!open) setError("");
+        if (!open) setError(ui(""));
       }}
     >
       <div className="relative shrink-0">
@@ -76,19 +79,19 @@ export function VoiceNote({
             size="sm"
             onClick={toggle}
             aria-pressed={state !== "idle"}
-            title={state === "idle" ? "Dictate your note" : "Stop dictation"}
+            title={state === "idle" ? ui("Dictate your note") : ui("Stop dictation")}
           >
             {state === "idle" ? <Mic /> : <MicOff />}
             {state === "starting"
-              ? "Starting…"
+              ? ui("Starting…")
               : state === "listening"
-                ? "Listening · Stop"
-                : "Dictate"}
+                ? ui("Listening · Stop")
+                : ui("Dictate")}
           </Button>
         </Popover.Anchor>
         <Popover.Portal>
           <Popover.Content
-            aria-label="Dictation help"
+            aria-label={ui("Dictation help")}
             align="end"
             sideOffset={8}
             collisionPadding={12}
@@ -102,9 +105,9 @@ export function VoiceNote({
           >
             <p role="alert">{error}</p>
             <p className="text-muted-foreground">
-              Keyboard dictation types directly into your note. Use your keyboard’s microphone key
-              or your system’s dictation shortcut. On Mac, enable Dictation in System Settings →
-              Keyboard.
+              {ui(
+                "Keyboard dictation types directly into your note. Use your keyboard’s microphone key or your system’s dictation shortcut. On Mac, enable Dictation in System Settings → Keyboard.",
+              )}
             </p>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -112,22 +115,22 @@ export function VoiceNote({
                 size="sm"
                 onClick={() => {
                   session.current?.dispose();
-                  setError("");
+                  setError(ui(""));
                   setKeyboardHint(true);
                   onPrepare();
                 }}
               >
-                Use keyboard dictation
+                {ui("Use keyboard dictation")}
               </Button>
-              <Button type="button" size="sm" variant="ghost" onClick={() => setError("")}>
-                Dismiss
+              <Button type="button" size="sm" variant="ghost" onClick={() => setError(ui(""))}>
+                {ui("Dismiss")}
               </Button>
             </div>
           </Popover.Content>
         </Popover.Portal>
         {keyboardHint && (
           <span role="status" className="sr-only">
-            Note ready. Press your keyboard’s microphone key or dictation shortcut to speak.
+            {ui("Note ready. Press your keyboard’s microphone key or dictation shortcut to speak.")}
           </span>
         )}
       </div>

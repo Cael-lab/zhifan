@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -83,24 +84,26 @@ export default function ImportPage() {
 }
 
 function ImportView() {
+  const { t: ui, language } = useI18n();
+
   const router = useRouter();
   return (
     <div>
-      <FilterBar title="Import trades" />
+      <FilterBar title={ui("Import trades")} />
       <div className="mx-auto max-w-3xl p-4">
         <Tabs defaultValue="file">
           <TabsList>
             <TabsTrigger value="file" className="max-sm:px-2 max-sm:text-xs">
               <FileUp className="mr-1.5 hidden h-4 w-4 min-[420px]:block" />
-              File upload
+              {ui("File upload")}
             </TabsTrigger>
             <TabsTrigger value="sync" className="max-sm:px-2 max-sm:text-xs">
               <Landmark className="mr-1.5 hidden h-4 w-4 min-[420px]:block" />
-              Broker sync
+              {ui("Broker sync")}
             </TabsTrigger>
             <TabsTrigger value="manual" className="max-sm:px-2 max-sm:text-xs">
               <PencilLine className="mr-1.5 hidden h-4 w-4 min-[420px]:block" />
-              Manual
+              {ui("Manual")}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="file">
@@ -112,7 +115,7 @@ function ImportView() {
           <TabsContent value="manual">
             <Card>
               <CardHeader>
-                <CardTitle>Add executions manually</CardTitle>
+                <CardTitle>{ui("Add executions manually")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ManualTradeEntry onSaved={() => router.push("/trades")} />
@@ -126,6 +129,8 @@ function ImportView() {
 }
 
 function FileImport() {
+  const { t: ui, language } = useI18n();
+
   const router = useRouter();
   const [accountId, setAccountId] = useState("");
   const [reviewOptions, setReviewOptions] = useState<ImportReviewOptions>({});
@@ -346,7 +351,7 @@ function FileImport() {
     <div className="space-y-3">
       <Card>
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0">
-          <CardTitle>Upload a statement or export</CardTitle>
+          <CardTitle>{ui("Upload a statement or export")}</CardTitle>
           <AiImportOptions
             enabled={aiEnabled}
             onEnabledChange={(enabled) => {
@@ -371,11 +376,11 @@ function FileImport() {
               htmlFor="statement-timezone"
               className="mb-1 block text-xs text-muted-foreground"
             >
-              Statement timezone (IANA)
+              {ui("Statement timezone (IANA)")}
             </Label>
             <TimeZonePicker
               id="statement-timezone"
-              label="Statement timezone"
+              label={ui("Statement timezone")}
               value={timeZone}
               disabled={busy || !settingsData}
               describedBy="statement-timezone-help"
@@ -387,12 +392,14 @@ function FileImport() {
               }}
             />
             <p id="statement-timezone-help" className="mt-1 text-xs text-muted-foreground">
-              Choose the timezone used by your broker's statement. Timestamps with an explicit
-              offset keep that offset. Your journal displays times in {displayTimeZone}.
+              {ui(
+                "Choose the timezone used by your broker's statement. Timestamps with an explicit offset keep that offset. Your journal displays times in",
+              )}{" "}
+              {displayTimeZone}.
             </p>
             {timeZone && !validTimeZone && (
               <p role="alert" className="mt-1 text-xs text-loss">
-                Enter a valid IANA timezone, such as Europe/Helsinki.
+                {ui("Enter a valid IANA timezone, such as Europe/Helsinki.")}
               </p>
             )}
             {settingsError && (
@@ -406,22 +413,25 @@ function FileImport() {
             <span className="text-sm">
               {fileName ||
                 (aiEnabled
-                  ? "Choose a statement for AI parsing"
-                  : "Choose a CSV / HTML / XML statement or an XTB Excel report")}
+                  ? ui("Choose a statement for AI parsing")
+                  : ui("Choose a CSV / HTML / XML statement or an XTB Excel report"))}
             </span>
             <span className="text-xs text-muted-foreground">
               {aiEnabled ? (
-                "CSV, TSV, HTML, XML, TXT or PDF. Your file stays local until you preview with AI."
+                ui(
+                  "CSV, TSV, HTML, XML, TXT or PDF. Your file stays local until you preview with AI.",
+                )
               ) : (
                 <>
-                  Auto-detected:{" "}
+                  {ui("Auto-detected:")}{" "}
                   {[
                     ...new Set(
                       formatData?.formats.map((format) => format.label.split(" (")[0]) ?? [],
                     ),
                   ].join(", ")}{" "}
-                  — anything else via column mapping. XTB: one .xlsx per account. Closed positions
-                  and open holdings are imported; cash operations are left out.
+                  {ui(
+                    "— anything else via column mapping. XTB: one .xlsx per account. Closed positions and open holdings are imported; cash operations are left out.",
+                  )}
                 </>
               )}
             </span>
@@ -449,11 +459,11 @@ function FileImport() {
             >
               {busy
                 ? aiEnabled
-                  ? "AI is reading your statement…"
-                  : "Reading…"
+                  ? ui("AI is reading your statement…")
+                  : ui("Reading…")
                 : aiEnabled
-                  ? "Preview with AI"
-                  : "Preview file"}
+                  ? ui("Preview with AI")
+                  : ui("Preview file")}
             </Button>
           )}
 
@@ -465,11 +475,11 @@ function FileImport() {
           {preview?.needsSymbol && (
             <div className="flex flex-wrap items-end gap-2">
               <label className="min-w-0 flex-1 text-xs text-muted-foreground">
-                Symbol
+                {ui("Symbol")}
                 <Input
                   value={symbol}
                   onChange={(event) => setSymbol(event.target.value.toUpperCase())}
-                  placeholder="AAPL, EURUSD…"
+                  placeholder={ui("AAPL, EURUSD…")}
                   className="mt-1"
                 />
               </label>
@@ -479,21 +489,21 @@ function FileImport() {
                 onClick={previewFile}
                 disabled={busy || !symbol.trim()}
               >
-                Preview
+                {ui("Preview")}
               </Button>
             </div>
           )}
           {preview?.needsMapping && preview.headers && (
             <div className="space-y-2 rounded-md border p-3">
               <p className="text-sm">
-                Format not recognized — map your columns (nothing is guessed silently):
+                {ui("Format not recognized — map your columns (nothing is guessed silently):")}
               </p>
               <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                 {mappingFields.map((field) => (
                   <div key={field}>
                     <Label className="mb-1 block text-xs capitalize text-muted-foreground">
                       {field}
-                      {field === "fee" ? " (optional)" : ""}
+                      {field === "fee" ? ui(" (optional)") : ""}
                     </Label>
                     <Select
                       value={mapping[field] ?? "none"}
@@ -502,7 +512,7 @@ function FileImport() {
                       }
                     >
                       <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="column" />
+                        <SelectValue placeholder={ui("column")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">—</SelectItem>
@@ -518,12 +528,12 @@ function FileImport() {
               </div>
               <details className="space-y-2 text-xs">
                 <summary className="cursor-pointer text-muted-foreground">
-                  Position identity and ordering (optional)
+                  {ui("Position identity and ordering (optional)")}
                 </summary>
                 <p className="text-muted-foreground">
-                  For Open/Close Long/Short rows, map source position IDs, execution IDs or sequence
-                  numbers when available. Columns named Position ID, Execution ID, Fill ID and
-                  Sequence are recognized automatically. An order ID is not an execution ID.
+                  {ui(
+                    "For Open/Close Long/Short rows, map source position IDs, execution IDs or sequence numbers when available. Columns named Position ID, Execution ID, Fill ID and Sequence are recognized automatically. An order ID is not an execution ID.",
+                  )}
                 </p>
                 <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                   {(["positionId", "executionId", "sequence"] as const).map((field) => (
@@ -544,7 +554,7 @@ function FileImport() {
                         }
                       >
                         <SelectTrigger className="h-8 text-xs">
-                          <SelectValue placeholder="column" />
+                          <SelectValue placeholder={ui("column")} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">—</SelectItem>
@@ -571,7 +581,7 @@ function FileImport() {
                   !mapping.timestamp
                 }
               >
-                Preview with mapping
+                {ui("Preview with mapping")}
               </Button>
             </div>
           )}
@@ -580,8 +590,12 @@ function FileImport() {
             <div className="space-y-2 rounded-md border p-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Badge variant="secondary">{preview.detected}</Badge>
-                <span>{preview.totals.executions} executions</span>
-                <span className="text-muted-foreground">· {preview.totals.symbols} symbols</span>
+                <span>
+                  {preview.totals.executions} {ui("executions")}
+                </span>
+                <span className="text-muted-foreground">
+                  · {preview.totals.symbols} {ui("symbols")}
+                </span>
                 {preview.totals.from && (
                   <span className="text-muted-foreground">
                     · {dayKeyOf(preview.totals.from, displayTimeZone)} →{" "}
@@ -590,12 +604,13 @@ function FileImport() {
                 )}
                 {preview.totals.skippedRows > 0 && (
                   <span className="text-muted-foreground">
-                    · {preview.totals.skippedRows} rows skipped
+                    · {preview.totals.skippedRows} {ui("rows skipped")}
                   </span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Statement timezone: {preview.timeZone}. Preview times: {displayTimeZone}.
+                {ui("Statement timezone:")} {preview.timeZone}
+                {ui(". Preview times:")} {displayTimeZone}.
               </p>
               {!!preview.executions?.length && (
                 <div className="space-y-1 border-t pt-2 text-xs">
@@ -621,27 +636,32 @@ function FileImport() {
                           </span>
                           {preview.aiPreviewToken && (
                             <span>
-                              {execution.quantity} @ {execution.price} · Fees {execution.fee}
+                              {execution.quantity} @ {execution.price} {ui("· Fees")}{" "}
+                              {execution.fee}
                             </span>
                           )}
                         </div>
                         {preview.aiPreviewToken && preview.sources?.[index] && (
                           <p className="mt-0.5 text-muted-foreground">
-                            Source: {preview.sources[index]}
+                            {ui("Source:")} {preview.sources[index]}
                           </p>
                         )}
                       </div>
                     ))}
                   </div>
                   {!preview.aiPreviewToken && preview.totals.executions > 5 && (
-                    <p className="text-muted-foreground">Showing the first 5 executions.</p>
+                    <p className="text-muted-foreground">{ui("Showing the first 5 executions.")}</p>
                   )}
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
                 {preview.detected === "ninjatrader"
-                  ? "Recovering an older NinjaTrader import or correcting its timezone? Import the complete history into a new journal account, then compare totals. Keep the original account and its reviews until you have verified the recovery."
-                  : "Correcting a previous import? Remove the affected trades before importing again with a different timezone to avoid duplicates. Back up your data first."}
+                  ? ui(
+                      "Recovering an older NinjaTrader import or correcting its timezone? Import the complete history into a new journal account, then compare totals. Keep the original account and its reviews until you have verified the recovery.",
+                    )
+                  : ui(
+                      "Correcting a previous import? Remove the affected trades before importing again with a different timezone to avoid duplicates. Back up your data first.",
+                    )}
               </p>
               {preview.warnings?.map((warning, index) => (
                 <p key={index} className="text-xs text-muted-foreground">
@@ -687,7 +707,7 @@ function FileImport() {
                   (preview.detected === "ninjatrader" && !preview.reconciliation?.token)
                 }
               >
-                {busy ? "Importing…" : "Import"}
+                {busy ? ui("Importing…") : ui("Import")}
               </Button>
               {preview.aiPreviewToken && (
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -696,8 +716,9 @@ function FileImport() {
                     disabled={busy}
                     onCheckedChange={(checked) => setAiReviewed(checked === true)}
                   />
-                  I compared all extracted executions with my statement, including the account,
-                  quantities, prices, fees and timestamps. Import this preview.
+                  {ui(
+                    "I compared all extracted executions with my statement, including the account, quantities, prices, fees and timestamps. Import this preview.",
+                  )}
                 </label>
               )}
             </div>
@@ -709,6 +730,8 @@ function FileImport() {
 }
 
 function BrokerConnect() {
+  const { t: ui, language } = useI18n();
+
   const router = useRouter();
   const { data } = useApi<{ brokers: BrokerInfo[] }>("/api/brokers");
   const { data: settingsData, error: settingsError } = useApi<{ importTimeZone: string }>(
@@ -751,11 +774,15 @@ function BrokerConnect() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Connect a broker (read-only keys, stored encrypted on YOUR machine)</CardTitle>
+        <CardTitle>
+          {ui("Connect a broker (read-only keys, stored encrypted on YOUR machine)")}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <Label className="mb-1 block text-xs text-muted-foreground">Broker / exchange</Label>
+          <Label className="mb-1 block text-xs text-muted-foreground">
+            {ui("Broker / exchange")}
+          </Label>
           <Select
             value={brokerId}
             onValueChange={(value) => {
@@ -764,7 +791,7 @@ function BrokerConnect() {
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Choose a broker" />
+              <SelectValue placeholder={ui("Choose a broker")} />
             </SelectTrigger>
             <SelectContent>
               {data?.brokers.map((b) => (
@@ -783,14 +810,16 @@ function BrokerConnect() {
             {broker.id === "ibkr-flex" && (
               <p className="text-xs text-muted-foreground">
                 {settingsError
-                  ? "Could not load the import timezone. Refresh and try again."
+                  ? ui("Could not load the import timezone. Refresh and try again.")
                   : settingsData
                     ? `Statement timezone: ${settingsData.importTimeZone}. Used for Flex timestamps without an offset, and required for Flex XML files uploaded into this account. Change it in Settings → Journal before connecting.`
-                    : "Loading statement timezone…"}
+                    : ui("Loading statement timezone…")}
               </p>
             )}
             <div>
-              <Label className="mb-1 block text-xs text-muted-foreground">Account name</Label>
+              <Label className="mb-1 block text-xs text-muted-foreground">
+                {ui("Account name")}
+              </Label>
               <Input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -799,9 +828,11 @@ function BrokerConnect() {
             </div>
             {broker.credentials.map((field) => (
               <div key={field.key}>
-                <Label className="mb-1 block text-xs text-muted-foreground">{field.label}</Label>
+                <Label className="mb-1 block text-xs text-muted-foreground">
+                  {ui(field.label)}
+                </Label>
                 <Input
-                  aria-label={field.label}
+                  aria-label={ui(field.label)}
                   type={field.secret ? "password" : "text"}
                   value={credentials[field.key] ?? ""}
                   onChange={(event) =>
@@ -822,7 +853,7 @@ function BrokerConnect() {
                 (broker.id === "ibkr-flex" && !isTimeZone(settingsData?.importTimeZone))
               }
             >
-              {busy ? "Connecting…" : "Connect & sync"}
+              {busy ? ui("Connecting…") : ui("Connect & sync")}
             </Button>
           </>
         )}

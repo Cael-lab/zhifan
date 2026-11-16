@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { OptionSelect } from "@/components/ui/option-select";
 
 import { HoverHint } from "@/components/ui/tooltip";
@@ -59,6 +61,8 @@ const number = (n: number | null) =>
 const percent = (n: number | null) => (n === null ? "-" : `${(n * 100).toFixed(1)}%`);
 const money = (n: number, currency: string) => `${number(n)} ${currency}`;
 function Summary({ data }: { data: Analysis }) {
+  const { t: ui } = useI18n();
+
   const s = data.summary;
   return (
     <div className="report-summary">
@@ -74,7 +78,7 @@ function Summary({ data }: { data: Analysis }) {
           ["Avg realized R", number(s.avgRealizedR)],
         ].map(([label, value]) => (
           <div key={label}>
-            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-xs text-muted-foreground">{ui(label ?? "")}</p>
             <p className="mt-1 break-words text-base font-semibold tabular-nums sm:text-lg">
               {label === "Net P&L" ? <MonetaryValue>{value}</MonetaryValue> : value}
             </p>
@@ -93,8 +97,10 @@ function DimensionSelect({
   value: Dimension;
   onChange: (d: Dimension) => void;
 }) {
+  const { t: ui } = useI18n();
+
   return (
-    <Field label={label}>
+    <Field label={ui(label)}>
       <OptionSelect
         className={fieldClass}
         value={value}
@@ -102,7 +108,7 @@ function DimensionSelect({
       >
         {Object.entries(DIMENSIONS).map(([key, label]) => (
           <option key={key} value={key}>
-            {label}
+            {ui(label)}
           </option>
         ))}
       </OptionSelect>
@@ -129,6 +135,8 @@ function Breakdown({
   primary: Dimension;
   secondary: Dimension;
 }) {
+  const { t: ui, language } = useI18n();
+
   const rowLabel = (k: string) => (primary === "playbook" ? labels(data, k) : k),
     colLabel = (k: string) => (secondary === "playbook" ? labels(data, k) : k);
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -193,7 +201,7 @@ function Breakdown({
             </tbody>
           </table>
           <p className="mt-2 text-xs text-muted-foreground">
-            Cell values are net P&L in {data.currencies[0] ?? "account currency"}.
+            {ui("Cell values are net P&L in")} {data.currencies[0] ?? ui("account currency")}.
           </p>
         </div>
       )}
@@ -250,7 +258,7 @@ function Breakdown({
       </div>
       {!data.groups.length && (
         <p className="py-12 text-center text-sm text-muted-foreground">
-          No closed trades match these filters.
+          {ui("No closed trades match these filters.")}
         </p>
       )}
     </div>
@@ -264,6 +272,8 @@ export default function ReportsPage() {
   );
 }
 function Reports() {
+  const { t: ui, language } = useI18n();
+
   const { query, values } = useFilters();
   const [mode, setMode] = useState<
       "overview" | "trends" | "explorer" | "breakdown" | "cross" | "compare"
@@ -278,7 +288,7 @@ function Reports() {
   const multi = (data?.currencies.length ?? 0) > 1;
   return (
     <div>
-      <FilterBar title="Reports" />
+      <FilterBar title={ui("Reports")} />
       <div className="space-y-4 p-4">
         <AskJournal />
         <div className="flex flex-wrap items-center gap-2">
@@ -318,10 +328,14 @@ function Reports() {
                 <CardHeader>
                   <div className="flex flex-wrap items-end justify-between gap-4">
                     <div className="flex flex-wrap gap-3">
-                      <DimensionSelect label="Group by" value={primary} onChange={setPrimary} />
+                      <DimensionSelect
+                        label={ui("Group by")}
+                        value={primary}
+                        onChange={setPrimary}
+                      />
                       {mode === "cross" && (
                         <DimensionSelect
-                          label="Then by"
+                          label={ui("Then by")}
                           value={secondary}
                           onChange={setSecondary}
                         />
@@ -356,11 +370,14 @@ function Reports() {
                       {error}
                     </p>
                   ) : loading ? (
-                    <p className="text-sm text-muted-foreground">Loading report…</p>
+                    <p className="text-sm text-muted-foreground">{ui("Loading report…")}</p>
                   ) : multi ? (
                     <p className="text-sm">
-                      These accounts use different currencies ({data?.currencies.join(", ")}).
-                      Select accounts with the same currency in Filters to compare monetary results.
+                      {ui("These accounts use different currencies (")}
+                      {data?.currencies.join(", ")}
+                      {ui(
+                        "). Select accounts with the same currency in Filters to compare monetary results.",
+                      )}
                     </p>
                   ) : data ? (
                     <Summary data={data} />
@@ -387,12 +404,13 @@ function Reports() {
                 </Card>
               )}
               <p className="text-xs leading-relaxed text-muted-foreground">
-                Closed trades only. Dates use the closing day; weekday and entry time use the
-                opening time in {data?.timeZone ?? "your journal timezone"}. Volume is total entry
-                quantity. R uses weighted entry and total entry quantity; missing or invalid risk
-                inputs are excluded from R averages. Derivatives require a configured multiplier for
-                realized R. Multiple tags or mistakes can place a trade in more than one group, so
-                those group totals can overlap.
+                {ui(
+                  "Closed trades only. Dates use the closing day; weekday and entry time use the opening time in",
+                )}{" "}
+                {data?.timeZone ?? ui("your journal timezone")}
+                {ui(
+                  ". Volume is total entry quantity. R uses weighted entry and total entry quantity; missing or invalid risk inputs are excluded from R averages. Derivatives require a configured multiplier for realized R. Multiple tags or mistakes can place a trade in more than one group, so those group totals can overlap.",
+                )}
               </p>
             </>
           )}
@@ -402,6 +420,8 @@ function Reports() {
   );
 }
 function Comparison({ initial }: { initial: AnalysisFilters }) {
+  const { t: ui, language } = useI18n();
+
   const privateMode = usePrivacy();
   const [a, setA] = useState<AnalysisFilters>({ ...initial, direction: "long" }),
     [b, setB] = useState<AnalysisFilters>({ ...initial, direction: "short" }),
@@ -421,12 +441,15 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Each group has its own filters. Compare strategies, accounts, periods, or trade
-        characteristics. Groups may overlap.
+        {ui(
+          "Each group has its own filters. Compare strategies, accounts, periods, or trade characteristics. Groups may overlap.",
+        )}
       </p>
       {multi && (
         <p role="alert" className="rounded-md border p-3 text-sm">
-          Select accounts with the same currency in both groups. Currency conversion is not applied.
+          {ui(
+            "Select accounts with the same currency in both groups. Currency conversion is not applied.",
+          )}
         </p>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
@@ -453,7 +476,7 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
                     setEditing(group.key);
                   }}
                 >
-                  Edit filters
+                  {ui("Edit filters")}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground break-words">
@@ -471,7 +494,7 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
                   {group.result.error}
                 </p>
               ) : group.result.loading ? (
-                <p>Loading…</p>
+                <p>{ui("Loading…")}</p>
               ) : group.result.data && !multi ? (
                 <Summary data={group.result.data} />
               ) : null}
@@ -483,7 +506,7 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
         <Card>
           <CardContent className="space-y-4 pt-5">
             <p className="text-sm">
-              {nameB} minus {nameA}:{" "}
+              {nameB} {ui("minus")} {nameA}:{" "}
               <strong>
                 <MonetaryValue>
                   {money(
@@ -492,7 +515,8 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
                   )}
                 </MonetaryValue>
               </strong>{" "}
-              net P&L · {number(bb.data.summary.trades - aa.data.summary.trades)} trades
+              {ui("net P&L ·")} {number(bb.data.summary.trades - aa.data.summary.trades)}{" "}
+              {ui("trades")}
             </p>
             <ReviewExport
               containsFinancialData
@@ -519,12 +543,14 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Group {editing?.toUpperCase()} filters</DialogTitle>
+            <DialogTitle>
+              {ui("Group")} {editing?.toUpperCase()} {ui("filters")}
+            </DialogTitle>
           </DialogHeader>
           <FilterFields value={draft} onChange={setDraft} />
           <div className="flex justify-between">
             <Button variant="ghost" onClick={() => setDraft({})}>
-              Clear
+              {ui("Clear")}
             </Button>
             <Button
               onClick={() => {
@@ -533,7 +559,7 @@ function Comparison({ initial }: { initial: AnalysisFilters }) {
                 setEditing(null);
               }}
             >
-              Apply to group
+              {ui("Apply to group")}
             </Button>
           </div>
         </DialogContent>

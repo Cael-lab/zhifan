@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
@@ -23,6 +24,8 @@ export function TimeZonePicker({
   disabled?: boolean;
   describedBy?: string;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -64,7 +67,7 @@ export function TimeZonePicker({
           aria-label={`${label}: ${value || "Choose a timezone"}`}
           aria-describedby={describedBy}
         >
-          <span className="truncate">{value ? timeZoneLabel(value) : "Choose a timezone"}</span>
+          <span className="truncate">{value ? timeZoneLabel(value) : ui("Choose a timezone")}</span>
           <ChevronsUpDown className="shrink-0 text-muted-foreground" aria-hidden="true" />
         </Button>
       </Popover.Trigger>
@@ -87,12 +90,12 @@ export function TimeZonePicker({
             <Input
               ref={input}
               role="combobox"
-              aria-label="Search timezones"
+              aria-label={ui("Search timezones")}
               aria-expanded={open}
               aria-autocomplete="list"
               aria-controls={listId}
               aria-activedescendant={activeId}
-              placeholder="Search city or timezone…"
+              placeholder={ui("Search city or timezone…")}
               className="pl-8"
               value={query}
               autoComplete="off"
@@ -122,7 +125,7 @@ export function TimeZonePicker({
           <div
             id={listId}
             role="listbox"
-            aria-label="Timezones"
+            aria-label={ui("Timezones")}
             className="mt-1 min-h-0 overflow-y-auto overscroll-contain"
           >
             {options.map((zone, index) => (
@@ -150,7 +153,7 @@ export function TimeZonePicker({
           <p role="status" className="shrink-0 px-2 pb-1 pt-2 text-xs text-muted-foreground">
             {options.length
               ? `${options.length} timezone${options.length === 1 ? "" : "s"}`
-              : "No matching timezone. Try a city or a full timezone name."}
+              : ui("No matching timezone. Try a city or a full timezone name.")}
           </p>
         </Popover.Content>
       </Popover.Portal>

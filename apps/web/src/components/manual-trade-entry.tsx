@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useId, useState } from "react";
 import { MonetaryField } from "@/components/privacy";
@@ -26,6 +27,8 @@ interface ManualLeg {
 }
 
 export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
+  const { t: ui, language } = useI18n();
+
   const [accountId, setAccountId] = useState("");
   const [symbol, setSymbol] = useState("");
   const [notes, setNotes] = useState("");
@@ -48,7 +51,7 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
   const save = async () => {
     if (!valid || busy) return;
     setBusy(true);
-    setError("");
+    setError(ui(""));
     try {
       await postJson("/api/executions", {
         accountId,
@@ -77,13 +80,13 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
       <AccountPicker value={accountId} onChange={setAccountId} kind="manual" />
       <div>
         <Label htmlFor={`${fieldId}-symbol`} className="mb-1 block text-xs text-muted-foreground">
-          Symbol
+          {ui("Symbol")}
         </Label>
         <Input
           id={`${fieldId}-symbol`}
           value={symbol}
           onChange={(event) => setSymbol(event.target.value.toUpperCase())}
-          placeholder="AAPL, ESZ6, BTCUSDT…"
+          placeholder={ui("AAPL, ESZ6, BTCUSDT…")}
         />
       </div>
       <div className="manual-executions space-y-3">
@@ -92,9 +95,11 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
             key={index}
             className="manual-execution-row grid min-w-0 gap-2 rounded-lg border p-3"
           >
-            <legend className="px-1 text-xs text-muted-foreground">Execution {index + 1}</legend>
+            <legend className="px-1 text-xs text-muted-foreground">
+              {ui("Execution")} {index + 1}
+            </legend>
             <label className="manual-execution-date grid min-w-0 gap-1 text-xs text-muted-foreground">
-              Date & time
+              {ui("Date & time")}
               <Input
                 type="datetime-local"
                 value={leg.datetime}
@@ -102,7 +107,7 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
               />
             </label>
             <div className="grid min-w-0 gap-1 text-xs text-muted-foreground">
-              <span id={`${fieldId}-execution-side-${index}`}>Side</span>
+              <span id={`${fieldId}-execution-side-${index}`}>{ui("Side")}</span>
               <Select
                 value={leg.side}
                 onValueChange={(value) => setLeg(index, { side: value as "buy" | "sell" })}
@@ -111,25 +116,25 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="buy">Buy</SelectItem>
-                  <SelectItem value="sell">Sell</SelectItem>
+                  <SelectItem value="buy">{ui("Buy")}</SelectItem>
+                  <SelectItem value="sell">{ui("Sell")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
-              Quantity
+              {ui("Quantity")}
               <Input
-                placeholder="qty"
+                placeholder={ui("qty")}
                 inputMode="decimal"
                 value={leg.quantity}
                 onChange={(event) => setLeg(index, { quantity: event.target.value })}
               />
             </label>
             <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
-              Price
+              {ui("Price")}
               <MonetaryField>
                 <Input
-                  placeholder="price"
+                  placeholder={ui("price")}
                   inputMode="decimal"
                   value={leg.price}
                   onChange={(event) => setLeg(index, { price: event.target.value })}
@@ -137,10 +142,10 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
               </MonetaryField>
             </label>
             <label className="grid min-w-0 gap-1 text-xs text-muted-foreground">
-              Fee
+              {ui("Fee")}
               <MonetaryField>
                 <Input
-                  placeholder="fee"
+                  placeholder={ui("fee")}
                   inputMode="decimal"
                   value={leg.fee}
                   onChange={(event) => setLeg(index, { fee: event.target.value })}
@@ -151,19 +156,20 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
         ))}
       </div>
       <div className="space-y-1">
-        <Label htmlFor={`${fieldId}-notes`}>Notes (optional)</Label>
+        <Label htmlFor={`${fieldId}-notes`}>{ui("Notes (optional)")}</Label>
         <textarea
           id={`${fieldId}-notes`}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
           maxLength={100000}
           rows={4}
-          placeholder="Your setup, why you took the trade, or what you learned…"
+          placeholder={ui("Your setup, why you took the trade, or what you learned…")}
           className="flex w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
         />
         <p className="text-xs text-muted-foreground">
-          Markdown supported. Notes are saved with the trade; existing notes are kept when adding to
-          an open position.
+          {ui(
+            "Markdown supported. Notes are saved with the trade; existing notes are kept when adding to an open position.",
+          )}
         </p>
       </div>
       {error && (
@@ -182,16 +188,16 @@ export function ManualTradeEntry({ onSaved }: { onSaved: () => void }) {
             ])
           }
         >
-          Add execution
+          {ui("Add execution")}
         </Button>
         <Button size="sm" onClick={save} disabled={!valid || busy}>
-          {busy ? "Saving…" : "Save trade"}
+          {busy ? ui("Saving…") : ui("Save trade")}
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        Dates and times use your device’s timezone. Executions matching an open position on{" "}
-        {symbol || "the symbol"} are stitched into round trips automatically (
-        {fmtNumber(legs.filter((leg) => leg.datetime).length, 0)} legs so far).
+        {ui("Dates and times use your device’s timezone. Executions matching an open position on")}{" "}
+        {symbol || ui("the symbol")} {ui("are stitched into round trips automatically (")}
+        {fmtNumber(legs.filter((leg) => leg.datetime).length, 0)} {ui("legs so far).")}
       </p>
     </fieldset>
   );

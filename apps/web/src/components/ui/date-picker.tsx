@@ -7,6 +7,7 @@ import { CalendarDays } from "lucide-react";
 import { Input } from "./input";
 import { Button } from "./button";
 import { formatDateInput, parseDateInput } from "@/lib/date-input";
+import { useI18n } from "@/components/language";
 
 // The calendar is loaded on demand, not in every page's initial filter-bar bundle.
 const Calendar = dynamic(() => import("./calendar").then((module) => module.Calendar), {
@@ -28,6 +29,7 @@ export function DatePicker({
   max?: string;
   disabled?: boolean;
 }) {
+  const { t: ui } = useI18n();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value);
   const [invalid, setInvalid] = useState(false);
@@ -111,7 +113,7 @@ export function DatePicker({
           />
           <div className="mt-3 flex items-center justify-between border-t pt-2">
             <Button variant="ghost" size="sm" disabled={!draft} onClick={() => select("")}>
-              Clear
+              {ui("Clear")}
             </Button>
             <Button
               variant="ghost"
@@ -119,7 +121,7 @@ export function DatePicker({
               disabled={!allowed(today)}
               onClick={() => select(today)}
             >
-              Today
+              {ui("Today")}
             </Button>
           </div>
         </Popover.Content>

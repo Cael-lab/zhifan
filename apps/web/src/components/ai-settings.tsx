@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useState } from "react";
 import {
@@ -17,6 +18,8 @@ import { Label } from "./ui/label";
 import { OptionSelect } from "./ui/option-select";
 
 export function AiSettings() {
+  const { t: ui, language } = useI18n();
+
   const { data, error, loading, refresh } = useApi<AiSettingsPayload>("/api/settings");
   const [provider, setProvider] = useState<AiProvider>("anthropic");
   const [model, setModel] = useState(AI_DEFAULT_MODELS.anthropic);
@@ -80,27 +83,27 @@ export function AiSettings() {
   return (
     <Card id="ai-settings" className="scroll-mt-24">
       <CardHeader>
-        <CardTitle>AI (bring your own key)</CardTitle>
+        <CardTitle>{ui("AI (bring your own key)")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-muted-foreground">
-          Use Anthropic, OpenAI, or an OpenAI-compatible server such as Ollama, LM Studio or
-          OpenRouter for recaps, trade critiques, and “ask your journal”. Your key is encrypted at
-          rest. AI requests go from your server directly to the provider you select.
+          {ui(
+            "Use Anthropic, OpenAI, or an OpenAI-compatible server such as Ollama, LM Studio or OpenRouter for recaps, trade critiques, and “ask your journal”. Your key is encrypted at rest. AI requests go from your server directly to the provider you select.",
+          )}
         </p>
         {data && (
           <p className="text-xs text-muted-foreground">
-            Active provider: {AI_PROVIDER_NAMES[data.aiProvider]} ·{" "}
+            {ui("Active provider:")} {AI_PROVIDER_NAMES[data.aiProvider]} ·{" "}
             {data.aiConfigured
               ? data.aiProvider === "compatible"
-                ? "Server configured"
-                : "Key configured"
-              : "Not configured"}
+                ? ui("Server configured")
+                : ui("Key configured")
+              : ui("Not configured")}
           </p>
         )}
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <Label htmlFor="ai-provider">Provider</Label>
+            <Label htmlFor="ai-provider">{ui("Provider")}</Label>
             <OptionSelect
               id="ai-provider"
               value={provider}
@@ -122,12 +125,12 @@ export function AiSettings() {
             </OptionSelect>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="ai-model">Model ID</Label>
+            <Label htmlFor="ai-model">{ui("Model ID")}</Label>
             <Input
               id="ai-model"
               value={model}
               disabled={disabled}
-              placeholder={compatible ? "e.g. llama3.1:8b" : AI_DEFAULT_MODELS[provider]}
+              placeholder={compatible ? ui("e.g. llama3.1:8b") : AI_DEFAULT_MODELS[provider]}
               onChange={(event) => {
                 setModel(event.target.value);
                 setSaved("");
@@ -136,18 +139,19 @@ export function AiSettings() {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          Use a text model available to your provider account or server. Each provider keeps its own
-          model and key.
+          {ui(
+            "Use a text model available to your provider account or server. Each provider keeps its own model and key.",
+          )}
         </p>
         {compatible && (
           <div className="space-y-1">
-            <Label htmlFor="ai-base-url">Server URL</Label>
+            <Label htmlFor="ai-base-url">{ui("Server URL")}</Label>
             <Input
               id="ai-base-url"
               type="url"
               value={baseUrl}
               disabled={disabled}
-              placeholder="http://localhost:11434/v1"
+              placeholder={ui("http://localhost:11434/v1")}
               onChange={(event) => {
                 setBaseUrl(event.target.value);
                 setSaved("");
@@ -156,15 +160,15 @@ export function AiSettings() {
               spellCheck={false}
             />
             <p className="text-xs text-muted-foreground">
-              The API root your server documents, usually ending in /v1, such as
-              http://localhost:11434/v1 for Ollama or https://openrouter.ai/api/v1. It must be
-              reachable from the machine running the journal.
+              {ui(
+                "The API root your server documents, usually ending in /v1, such as http://localhost:11434/v1 for Ollama or https://openrouter.ai/api/v1. It must be reachable from the machine running the journal.",
+              )}
             </p>
           </div>
         )}
         <div className="space-y-1">
           <Label htmlFor="ai-api-key">
-            {compatible ? "API key (optional)" : `${name} API key`}
+            {compatible ? ui("API key (optional)") : `${name} API key`}
           </Label>
           <Input
             id="ai-api-key"
@@ -177,12 +181,12 @@ export function AiSettings() {
             }}
             placeholder={
               connection?.source
-                ? "Key configured"
+                ? ui("Key configured")
                 : compatible
-                  ? "Optional"
+                  ? ui("Optional")
                   : provider === "anthropic"
-                    ? "sk-ant-…"
-                    : "sk-…"
+                    ? ui("sk-ant-…")
+                    : ui("sk-…")
             }
             autoComplete="off"
             spellCheck={false}
@@ -208,11 +212,11 @@ export function AiSettings() {
             }
             onClick={() => save()}
           >
-            {busy ? "Saving…" : "Save AI settings"}
+            {busy ? ui("Saving…") : ui("Save AI settings")}
           </Button>
           {connection?.source === "saved" && (
             <Button variant="outline" disabled={disabled} onClick={() => save(true)}>
-              Remove {name} key
+              {ui("Remove")} {name} {ui("key")}
             </Button>
           )}
         </div>

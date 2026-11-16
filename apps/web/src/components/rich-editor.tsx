@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { useImperativeHandle, useRef, useState, type Ref } from "react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -80,6 +82,8 @@ export function RichEditor({
   showModeToggle?: boolean;
   editorRef?: Ref<RichEditorHandle>;
 }) {
+  const { t: ui, language } = useI18n();
+
   const ref = useRef<HTMLTextAreaElement>(null),
     [localPreview, setLocalPreview] = useState(() =>
       defaultMode ? defaultMode === "preview" : Boolean(value.trim()),
@@ -141,7 +145,7 @@ export function RichEditor({
       <div className="flex flex-wrap items-center gap-1">
         {showModeToggle && (
           <Button type="button" variant="outline" size="sm" onClick={() => setPreview(!preview)}>
-            {preview ? "Edit" : "Preview"}
+            {preview ? ui("Edit") : ui("Preview")}
           </Button>
         )}
         {!preview && (
@@ -152,9 +156,9 @@ export function RichEditor({
               size="sm"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => formatInline("**")}
-              aria-label="Bold"
+              aria-label={ui("Bold")}
             >
-              B
+              {ui("B")}
             </Button>
             <Button
               type="button"
@@ -162,39 +166,39 @@ export function RichEditor({
               size="sm"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => formatInline("*")}
-              aria-label="Italic"
+              aria-label={ui("Italic")}
             >
-              <i>I</i>
+              <i>{ui("I")}</i>
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => insert("\n## ")}
-              aria-label="Heading"
+              aria-label={ui("Heading")}
             >
-              H2
+              {ui("H2")}
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => insert("\n- ")}
-              aria-label="Bullet list"
+              aria-label={ui("Bullet list")}
             >
-              List
+              {ui("List")}
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => insert("\n- [ ] ")}
-              aria-label="Checklist"
+              aria-label={ui("Checklist")}
             >
-              Checklist
+              {ui("Checklist")}
             </Button>
             <Button type="button" size="sm" variant="ghost" onClick={() => setLinkOpen(!linkOpen)}>
-              Link trade
+              {ui("Link trade")}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -202,14 +206,14 @@ export function RichEditor({
                   type="button"
                   variant="outline"
                   size="sm"
-                  aria-label="Insert note template"
+                  aria-label={ui("Insert note template")}
                   className="gap-2 rounded-lg"
                 >
-                  Insert template…
+                  {ui("Insert template…")}
                   <ChevronDown className="size-3.5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" aria-label="Note templates">
+              <DropdownMenuContent align="start" aria-label={ui("Note templates")}>
                 {[...BUILT_INS, ...(data?.templates ?? [])].map((template) => (
                   <DropdownMenuItem
                     key={template.id}
@@ -240,7 +244,7 @@ export function RichEditor({
                 }
               }}
             >
-              Save template
+              {ui("Save template")}
             </Button>
           </>
         )}
@@ -248,8 +252,8 @@ export function RichEditor({
       {linkOpen && !preview && (
         <div className="space-y-2 rounded-md border p-2">
           <input
-            aria-label="Find trade by symbol, date or account"
-            placeholder="Search symbol, date or account"
+            aria-label={ui("Find trade by symbol, date or account")}
+            placeholder={ui("Search symbol, date or account")}
             className={fieldClass}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -257,7 +261,7 @@ export function RichEditor({
           <div className="max-h-40 overflow-y-auto">
             {tradesLoading && (
               <p role="status" className="text-xs text-muted-foreground">
-                Loading trades…
+                {ui("Loading trades…")}
               </p>
             )}
             {tradeError && (
@@ -282,11 +286,13 @@ export function RichEditor({
                 </button>
               ))}
             {!tradesLoading && !tradeError && trades?.trades.length === 0 && (
-              <p className="text-xs text-muted-foreground">No matching trades.</p>
+              <p className="text-xs text-muted-foreground">{ui("No matching trades.")}</p>
             )}
             {!tradesLoading && !tradeError && trades?.hasMore && (
               <p className="text-xs text-muted-foreground">
-                Showing the latest 50 matches. Search by date or account to find older trades.
+                {ui(
+                  "Showing the latest 50 matches. Search by date or account to find older trades.",
+                )}
               </p>
             )}
           </div>
@@ -294,12 +300,12 @@ export function RichEditor({
       )}
       {preview ? (
         <div className="min-h-40 rounded-md border p-3">
-          <Markdown>{value || "Nothing written yet."}</Markdown>
+          <Markdown>{value || ui("Nothing written yet.")}</Markdown>
         </div>
       ) : (
         <textarea
           ref={ref}
-          aria-label="Review notes"
+          aria-label={ui("Review notes")}
           className={`${fieldClass} min-h-48 resize-y font-mono text-[13px]`}
           value={value}
           onChange={(e) => onChange(e.target.value)}

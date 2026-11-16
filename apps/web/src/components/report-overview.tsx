@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import type { AnalysisFilters, BucketStats } from "@luxalgo/journal-core";
 import { TimeHeatmap } from "./charts/time-heatmap";
@@ -34,6 +35,8 @@ const SECTIONS = [
 ] as const;
 
 export function ReportOverview({ query, filters }: { query: string; filters: AnalysisFilters }) {
+  const { t: ui, language } = useI18n();
+
   const { data, error, loading } = useApi<OverviewData>(`/api/stats?${query}`);
   if (error)
     return (
@@ -45,8 +48,9 @@ export function ReportOverview({ query, filters }: { query: string; filters: Ana
   if (data.currencies.length > 1)
     return (
       <p className="rounded-lg border p-4 text-sm">
-        These accounts use different currencies ({data.currencies.join(", ")}). Select accounts with
-        the same currency in Filters to compare monetary results.
+        {ui("These accounts use different currencies (")}
+        {data.currencies.join(", ")}
+        {ui("). Select accounts with the same currency in Filters to compare monetary results.")}
       </p>
     );
   const currency = data.currencies[0] ?? "USD";
@@ -56,7 +60,7 @@ export function ReportOverview({ query, filters }: { query: string; filters: Ana
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-muted-foreground">
-          Trading overview · {data.timeZone} · {currency}
+          {ui("Trading overview ·")} {data.timeZone} · {currency}
         </p>
         <ReviewExport
           containsFinancialData
@@ -85,7 +89,7 @@ export function ReportOverview({ query, filters }: { query: string; filters: Ana
       <div className="grid gap-3 lg:grid-cols-2">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Trade time performance</CardTitle>
+            <CardTitle>{ui("Trade time performance")}</CardTitle>
           </CardHeader>
           <CardContent>
             <TimeHeatmap hours={data.buckets.hour} currency={currency} />
@@ -100,17 +104,17 @@ export function ReportOverview({ query, filters }: { query: string; filters: Ana
               {data.buckets[section.key].length === 0 ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
                   {section.key === "tag" || section.key === "mistake" || section.key === "playbook"
-                    ? "Annotate trades to unlock this breakdown."
-                    : "No data yet."}
+                    ? ui("Annotate trades to unlock this breakdown.")
+                    : ui("No data yet.")}
                 </p>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>{section.title.replace("By ", "")}</TableHead>
-                      <TableHead className="text-right">Trades</TableHead>
-                      <TableHead className="text-right">Win %</TableHead>
-                      <TableHead className="text-right">Net P&L</TableHead>
+                      <TableHead className="text-right">{ui("Trades")}</TableHead>
+                      <TableHead className="text-right">{ui("Win %")}</TableHead>
+                      <TableHead className="text-right">{ui("Net P&L")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -138,10 +142,9 @@ export function ReportOverview({ query, filters }: { query: string; filters: Ana
         ))}
       </div>
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Weekday and hour use trade opening times. Overview trade counts include open positions; win
-        rates use closed trades. Holding time requires a closed trade. Tags and mistakes can
-        overlap. By symbol shows the top 20 by net P&L; Breakdowns includes every symbol and
-        additional metrics for closed trades.
+        {ui(
+          "Weekday and hour use trade opening times. Overview trade counts include open positions; win rates use closed trades. Holding time requires a closed trade. Tags and mistakes can overlap. By symbol shows the top 20 by net P&L; Breakdowns includes every symbol and additional metrics for closed trades.",
+        )}
       </p>
     </div>
   );

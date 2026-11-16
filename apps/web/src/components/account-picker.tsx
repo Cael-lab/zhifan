@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,8 @@ export function AccountPicker({
   onChange: (id: string) => void;
   kind: "import" | "manual";
 }) {
+  const { t: ui, language } = useI18n();
+
   const {
     data,
     refresh,
@@ -47,11 +50,11 @@ export function AccountPicker({
     <div className="flex min-w-0 flex-wrap items-end gap-2">
       <div className="min-w-0 flex-[1_1_180px]">
         <Label htmlFor={`${fieldId}-account`} className="mb-1 block text-xs text-muted-foreground">
-          Into account
+          {ui("Into account")}
         </Label>
         <Select value={value} onValueChange={onChange}>
           <SelectTrigger id={`${fieldId}-account`}>
-            <SelectValue placeholder="Choose an account" />
+            <SelectValue placeholder={ui("Choose an account")} />
           </SelectTrigger>
           <SelectContent>
             {accounts.map((account) => (
@@ -69,7 +72,7 @@ export function AccountPicker({
         disabled={saving}
         onClick={() => setCreating(!creating)}
       >
-        {creating ? "Cancel new account" : "New account"}
+        {creating ? ui("Cancel new account") : ui("New account")}
       </Button>
       {accountError && (
         <p role="alert" className="w-full text-sm text-destructive">

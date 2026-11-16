@@ -1,5 +1,5 @@
 "use client";
-
+import { useI18n } from "@/components/language";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { Moon, Sun } from "lucide-react";
 import { THEME_KEY, themePreference, type Theme } from "@/lib/theme";
@@ -8,6 +8,8 @@ import { Button } from "./ui/button";
 const ThemeContext = createContext({ theme: "dark" as Theme, ready: false, toggle: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
+  const { t: ui } = useI18n();
+
   const [theme, setTheme] = useState<Theme>("dark");
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -22,7 +24,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const sync = (event: StorageEvent) => {
       if (event.key === THEME_KEY || event.key === null) {
         apply(themePreference(event.newValue));
-        setError("");
+        setError(ui(""));
       }
     };
     window.addEventListener("storage", sync);
@@ -33,9 +35,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     apply(next);
     try {
       localStorage.setItem(THEME_KEY, next);
-      setError("");
+      setError(ui(""));
     } catch {
-      setError("Appearance changed, but your browser could not save it for next time.");
+      setError(ui("Appearance changed, but your browser could not save it for next time."));
     }
   };
   return (
@@ -54,6 +56,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function ThemeToggle({ iconOnly = false }: { iconOnly?: boolean }) {
+  const { t: ui } = useI18n();
+
   const { theme, ready, toggle } = useContext(ThemeContext);
   const label = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
   return (
@@ -68,11 +72,11 @@ export function ThemeToggle({ iconOnly = false }: { iconOnly?: boolean }) {
       }
       disabled={!ready}
       onClick={toggle}
-      aria-label={label}
+      aria-label={ui(label)}
       title={iconOnly ? label : undefined}
     >
       {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
-      {!iconOnly && (theme === "dark" ? "Light mode" : "Dark mode")}
+      {!iconOnly && (theme === "dark" ? ui("Light mode") : ui("Dark mode"))}
     </Button>
   );
 }

@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { AiNotice } from "@/components/ai-notice";
 import { TradeLearning } from "@/components/trade-learning";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -92,6 +94,8 @@ export default function TradePage({ params }: { params: Promise<{ key: string }>
 }
 
 function TradeView({ tradeKey }: { tradeKey: string }) {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<{
     trade: TradeDetail;
     executions: ExecutionRow[];
@@ -104,7 +108,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
   if (!data) {
     return (
       <div>
-        <FilterBar title="Trade" />
+        <FilterBar title={ui("Trade")} />
         <div className="p-4">
           {error ? (
             <p role="alert" className="text-sm text-destructive">
@@ -163,14 +167,14 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
 
   return (
     <div>
-      <FilterBar title={`${trade.symbol} · ${trade.direction.toUpperCase()}`} />
+      <FilterBar title={`${trade.symbol} · ${ui(trade.direction.toUpperCase())}`} />
       <TradeNavigation tradeKey={tradeKey} />
       <div className="grid gap-3 p-4 xl:grid-cols-3">
         <div className="min-w-0 space-y-3 xl:col-span-2">
           <Card>
             <CardContent className="flex flex-wrap items-center gap-x-8 gap-y-3 py-4">
               <div>
-                <div className="text-xs text-muted-foreground">Net P&L</div>
+                <div className="text-xs text-muted-foreground">{ui("Net P&L")}</div>
                 <Pnl value={trade.netPnl} className="text-2xl font-semibold" />
               </div>
               <Badge
@@ -179,25 +183,28 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
                 }
                 className="text-sm"
               >
-                {trade.status.toUpperCase()}
+                {ui(trade.status.toUpperCase())}
               </Badge>
-              <Meta label="毛盈亏" value={fmtMoney(trade.grossPnl)} monetary />
-              <Meta label="费用" value={fmtMoney(trade.fees)} monetary />
-              <Meta label="数量" value={fmtNumber(trade.quantity, 4)} />
-              <Meta label="平均入场价" value={fmtNumber(trade.avgEntry)} monetary />
+              <Meta label={ui("毛盈亏")} value={fmtMoney(trade.grossPnl)} monetary />
+              <Meta label={ui("费用")} value={fmtMoney(trade.fees)} monetary />
+              <Meta label={ui("数量")} value={fmtNumber(trade.quantity, 4)} />
+              <Meta label={ui("平均入场价")} value={fmtNumber(trade.avgEntry)} monetary />
               <Meta
-                label="平均出场价"
+                label={ui("平均出场价")}
                 monetary
                 value={trade.avgExit === null ? "open" : fmtNumber(trade.avgExit)}
               />
-              <Meta label="持仓时间" value={fmtDuration(trade.durationMs)} />
-              <Meta label="净收益 / 入场名义金额" value={fmtPercent(netReturnOnEntry(trade), 2)} />
+              <Meta label={ui("持仓时间")} value={fmtDuration(trade.durationMs)} />
               <Meta
-                label="计划盈亏比"
+                label={ui("净收益 / 入场名义金额")}
+                value={fmtPercent(netReturnOnEntry(trade), 2)}
+              />
+              <Meta
+                label={ui("计划盈亏比")}
                 value={trade.plannedR === null ? "–" : `${fmtNumber(trade.plannedR)}R`}
               />
               <Meta
-                label="实际结果 R"
+                label={ui("实际结果 R")}
                 value={trade.realizedR === null ? "–" : `${fmtNumber(trade.realizedR)}R`}
               />
             </CardContent>
@@ -209,8 +216,10 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
           {runningPnl.length > 1 && (
             <Card>
               <CardHeader>
-                <CardTitle>持仓盈亏过程</CardTitle>
-                <p className="text-xs text-muted-foreground">Times in {timeZone}</p>
+                <CardTitle>{ui("持仓盈亏过程")}</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {ui("Times in")} {timeZone}
+                </p>
               </CardHeader>
               <CardContent>
                 <EquityArea data={runningPnl} height={180} />
@@ -220,18 +229,20 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>成交明细</CardTitle>
-              <p className="text-xs text-muted-foreground">Times in {timeZone}</p>
+              <CardTitle>{ui("成交明细")}</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {ui("Times in")} {timeZone}
+              </p>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Side</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Fee</TableHead>
+                    <TableHead>{ui("Time")}</TableHead>
+                    <TableHead>{ui("Side")}</TableHead>
+                    <TableHead>{ui("Quantity")}</TableHead>
+                    <TableHead>{ui("Price")}</TableHead>
+                    <TableHead>{ui("Fee")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -244,7 +255,7 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
                         </TableCell>
                         <TableCell>
                           <span className={execution.side === "buy" ? "text-profit" : "text-loss"}>
-                            {execution.side === "buy" ? "▲ BUY" : "▼ SELL"}
+                            {execution.side === "buy" ? ui("▲ BUY") : ui("▼ SELL")}
                           </span>
                         </TableCell>
                         <TableCell className="tnum">{fmtNumber(execution.quantity, 4)}</TableCell>
@@ -267,10 +278,10 @@ function TradeView({ tradeKey }: { tradeKey: string }) {
           <RuleChecklist tradeKey={trade.key} playbookId={trade.playbookId} />
           <Card>
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle>AI 复盘</CardTitle>
+              <CardTitle>{ui("AI 复盘")}</CardTitle>
               <Button variant="outline" size="sm" onClick={askCritique} disabled={aiBusy}>
                 <Sparkles />
-                {aiBusy ? "Thinking…" : "Critique this trade"}
+                {aiBusy ? ui("Thinking…") : ui("Critique this trade")}
               </Button>
             </CardHeader>
             {aiError && (
@@ -303,9 +314,11 @@ function Meta({
   value: string;
   monetary?: boolean;
 }) {
+  const { t: ui } = useI18n();
+
   return (
     <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-xs text-muted-foreground">{ui(label)}</div>
       <div className="tnum text-sm font-medium">
         {monetary ? <MonetaryValue>{value}</MonetaryValue> : value}
       </div>
@@ -320,6 +333,8 @@ function AnnotationsCard({
   trade: TradeDetail;
   onPatch: (body: Record<string, unknown>) => Promise<void>;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [notes, setNotes] = useState(trade.notes ?? "");
   const noteEditor = useRef<RichEditorHandle>(null);
   const [tags, setTags] = useState((JSON.parse(trade.tagsJson ?? "[]") as string[]).join(", "));
@@ -346,7 +361,7 @@ function AnnotationsCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>交易备注与评价</CardTitle>
+        <CardTitle>{ui("交易备注与评价")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between">
@@ -356,13 +371,13 @@ function AnnotationsCard({
               checked={trade.reviewedAt !== null}
               onCheckedChange={(checked) => void onPatch({ reviewed: checked === true })}
             />
-            Reviewed
+            {ui("Reviewed")}
           </label>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-muted-foreground">Stop loss</label>
+            <label className="text-xs text-muted-foreground">{ui("Stop loss")}</label>
             <MonetaryField>
               <Input
                 value={stopLoss}
@@ -372,13 +387,13 @@ function AnnotationsCard({
                     stopLoss: event.target.value === "" ? null : Number(event.target.value),
                   });
                 }}
-                placeholder="planned stop"
+                placeholder={ui("planned stop")}
                 inputMode="decimal"
               />
             </MonetaryField>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Profit target</label>
+            <label className="text-xs text-muted-foreground">{ui("Profit target")}</label>
             <MonetaryField>
               <Input
                 value={profitTarget}
@@ -388,7 +403,7 @@ function AnnotationsCard({
                     profitTarget: event.target.value === "" ? null : Number(event.target.value),
                   });
                 }}
-                placeholder="planned target"
+                placeholder={ui("planned target")}
                 inputMode="decimal"
               />
             </MonetaryField>
@@ -396,16 +411,16 @@ function AnnotationsCard({
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">Playbook</label>
+          <label className="text-xs text-muted-foreground">{ui("Playbook")}</label>
           <Select
             value={trade.playbookId ?? "none"}
             onValueChange={(value) => void onPatch({ playbookId: value === "none" ? null : value })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="No playbook" />
+              <SelectValue placeholder={ui("No playbook")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No playbook</SelectItem>
+              <SelectItem value="none">{ui("No playbook")}</SelectItem>
               {playbookData?.playbooks.map((playbook) => (
                 <SelectItem key={playbook.id} value={playbook.id}>
                   {playbook.name}
@@ -416,31 +431,31 @@ function AnnotationsCard({
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">Tags (comma-separated)</label>
+          <label className="text-xs text-muted-foreground">{ui("Tags (comma-separated)")}</label>
           <Input
             value={tags}
             onChange={(event) => {
               setTags(event.target.value);
               debounced({ tags: parseList(event.target.value) });
             }}
-            placeholder="breakout, A+ setup"
+            placeholder={ui("breakout, A+ setup")}
           />
         </div>
         <div>
-          <label className="text-xs text-muted-foreground">Mistakes</label>
+          <label className="text-xs text-muted-foreground">{ui("Mistakes")}</label>
           <Input
             value={mistakes}
             onChange={(event) => {
               setMistakes(event.target.value);
               debounced({ mistakes: parseList(event.target.value) });
             }}
-            placeholder="chased entry, moved stop"
+            placeholder={ui("chased entry, moved stop")}
           />
         </div>
 
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="text-xs text-muted-foreground">Notes</label>
+            <label className="text-xs text-muted-foreground">{ui("Notes")}</label>
             <VoiceNote
               onPrepare={() => noteEditor.current?.focus()}
               onText={(text) => {
@@ -461,7 +476,7 @@ function AnnotationsCard({
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span role="status">{saveStatus}</span>
             <Button variant="ghost" size="sm" onClick={() => void flush()}>
-              Save now
+              {ui("Save now")}
             </Button>
           </div>
           <ReviewExport

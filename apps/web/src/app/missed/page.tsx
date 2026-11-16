@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { OptionSelect } from "@/components/ui/option-select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -45,6 +47,8 @@ export default function MissedPage() {
   );
 }
 function Missed() {
+  const { t: ui, language } = useI18n();
+
   const { data, error, refresh } = useApi<{ trades: Missed[] }>("/api/workspace/missed"),
     { data: books } = useApi<{ playbooks: { id: string; name: string }[] }>("/api/playbooks");
   const [open, setOpen] = useState(false),
@@ -88,7 +92,7 @@ function Missed() {
     label: string,
     type = "text",
   ) => (
-    <Field label={label}>
+    <Field label={ui(label)}>
       <MonetaryField sensitive={type === "number"}>
         <input
           className={fieldClass}
@@ -103,23 +107,24 @@ function Missed() {
   return (
     <div>
       <FilterBar
-        title="Missed trades"
+        title={ui("Missed trades")}
         actions={
           <Button size="sm" onClick={() => edit()}>
-            Log opportunity
+            {ui("Log opportunity")}
           </Button>
         }
       />
       <div className="space-y-4 p-4">
         <p className="text-sm text-muted-foreground">
-          Record setups you watched but did not take. These observations never enter your trade
-          count, P&L, or win rate.
+          {ui(
+            "Record setups you watched but did not take. These observations never enter your trade count, P&L, or win rate.",
+          )}
         </p>
         <div className="flex flex-wrap items-center gap-4">
           <input
-            aria-label="Search missed trades"
+            aria-label={ui("Search missed trades")}
             className={`${fieldClass} max-w-sm`}
-            placeholder="Search symbol or notes"
+            placeholder={ui("Search symbol or notes")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -128,7 +133,7 @@ function Missed() {
               checked={archived}
               onCheckedChange={(checked) => setArchived(checked === true)}
             />
-            Show archived
+            {ui("Show archived")}
           </label>
         </div>
         {(error || failure) && (
@@ -146,7 +151,7 @@ function Missed() {
                   </CardTitle>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="sm" onClick={() => edit(t)}>
-                      Edit
+                      {ui("Edit")}
                     </Button>
                     <Button
                       variant="ghost"
@@ -164,13 +169,13 @@ function Missed() {
                         }
                       }}
                     >
-                      {t.archivedAt ? "Restore" : "Archive"}
+                      {t.archivedAt ? ui("Restore") : ui("Archive")}
                     </Button>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {new Date(t.observedAt).toLocaleString()} ·{" "}
-                  {books?.playbooks.find((b) => b.id === t.playbookId)?.name ?? "No strategy"}
+                  {books?.playbooks.find((b) => b.id === t.playbookId)?.name ?? ui("No strategy")}
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -181,12 +186,12 @@ function Missed() {
                     ["Target", t.target],
                   ].map(([label, value]) => (
                     <span key={label}>
-                      <span className="text-muted-foreground">{label}: </span>
+                      <span className="text-muted-foreground">{ui(String(label ?? ""))}: </span>
                       <MonetaryValue>{value ?? "-"}</MonetaryValue>
                     </span>
                   ))}
                 </div>
-                <Markdown>{t.notes || "No review yet."}</Markdown>
+                <Markdown>{t.notes || ui("No review yet.")}</Markdown>
                 <ReviewExport
                   containsFinancialData
                   document={{
@@ -207,34 +212,37 @@ function Missed() {
         </div>
         {data && !rows.length && (
           <p className="py-16 text-center text-sm text-muted-foreground">
-            No {archived ? "archived " : ""}opportunities here yet.
+            {ui("No")} {archived ? ui("archived ") : ""}
+            {ui("opportunities here yet.")}
           </p>
         )}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
             <DialogHeader>
-              <DialogTitle>{editing ? "Edit opportunity" : "Log a missed opportunity"}</DialogTitle>
+              <DialogTitle>
+                {editing ? ui("Edit opportunity") : ui("Log a missed opportunity")}
+              </DialogTitle>
             </DialogHeader>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {formField("symbol", "Symbol")}
-              <Field label="Direction">
+              <Field label={ui("Direction")}>
                 <OptionSelect
                   className={fieldClass}
                   value={draft.direction}
                   onValueChange={(next) => setDraft({ ...draft, direction: next })}
                 >
-                  <option value="long">Long</option>
-                  <option value="short">Short</option>
+                  <option value="long">{ui("Long")}</option>
+                  <option value="short">{ui("Short")}</option>
                 </OptionSelect>
               </Field>
               {formField("observedAt", "Observed at (device time)", "datetime-local")}
-              <Field label="Strategy">
+              <Field label={ui("Strategy")}>
                 <OptionSelect
                   className={fieldClass}
                   value={draft.playbookId}
                   onValueChange={(next) => setDraft({ ...draft, playbookId: next })}
                 >
-                  <option value="">No strategy</option>
+                  <option value="">{ui("No strategy")}</option>
                   {books?.playbooks.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
@@ -252,7 +260,7 @@ function Missed() {
               defaultMode="edit"
               value={draft.notes}
               onChange={(notes) => setDraft({ ...draft, notes })}
-              placeholder="Why did you miss it? What will you do differently?"
+              placeholder={ui("Why did you miss it? What will you do differently?")}
             />
             {failure && (
               <p role="alert" className="text-xs text-destructive">
@@ -282,7 +290,7 @@ function Missed() {
                 }
               }}
             >
-              Save opportunity
+              {ui("Save opportunity")}
             </Button>
           </DialogContent>
         </Dialog>

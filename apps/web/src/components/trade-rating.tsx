@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
@@ -11,6 +12,8 @@ export function TradeRating({
   value: number | null;
   onChange: (value: number | null) => Promise<void>;
 }) {
+  const { t: ui, language } = useI18n();
+
   const [rating, setRating] = useState(value);
   const [hovered, setHovered] = useState<number | null>(null);
   const [focused, setFocused] = useState<number | null>(null);
@@ -27,12 +30,12 @@ export function TradeRating({
     setRating(next);
     setSelection((current) => current + 1);
     setSaving(true);
-    setError("");
+    setError(ui(""));
     try {
       await onChange(next);
     } catch {
       setRating(previous);
-      setError("Rating was not saved. Try again.");
+      setError(ui("Rating was not saved. Try again."));
     } finally {
       setSaving(false);
     }
@@ -42,7 +45,7 @@ export function TradeRating({
     <div>
       <div
         role="group"
-        aria-label="Trade rating"
+        aria-label={ui("Trade rating")}
         className="flex items-center gap-0.5"
         onPointerLeave={() => setHovered(null)}
       >

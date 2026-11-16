@@ -60,6 +60,14 @@ npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm format:check
 npx --yes --package node@22.16.0 --package pnpm@11.0.8 pnpm exec node scripts/check-licenses.mjs
 ```
 
-执行浏览器测试时使用独立的 `JOURNAL_DATA_DIR`。已批准的设计源文件在 `docs/zhifan-preview/`；实际页面沿用原项目组件和布局，并非把静态图片嵌入网页。新增核心页面为中文；原项目部分高级设置、统计和录入控件仍为英文。
+执行浏览器测试时使用独立的 `JOURNAL_DATA_DIR`。已批准的设计源文件在 `docs/zhifan-preview/`；实际页面沿用原项目组件和布局，并非把静态图片嵌入网页。
+
+## 中文 / English
+
+桌面侧栏底部、手机顶部和「设置 → 界面语言」都可选择简体中文或 English。侧栏折叠时点击「中 / EN」按钮切换。默认中文，选择会保存在当前浏览器，并在同一浏览器的其他标签页间同步。
+
+切换即时生效，不刷新表单；未保存的输入、日记正文、交易备注、知识点标题、标签和自定义分类不会被翻译。固定状态和选项只切换显示文字，保存值保持不变。日期选择器和页面标题随语言切换，交易时区及计算规则不受影响。浏览器禁止存储时，仍可在当前页面切换。
+
+品牌名、标的代码、API 参数及外部服务返回的原始信息可能保留原文。
 
 开发分支为 `feat/zhifan-workspace`，`upstream` 指向 LuxAlgo 原项目；没有向上游推送。保留原项目 MIT 许可证及品牌归属说明，知返不是 LuxAlgo 官方产品。

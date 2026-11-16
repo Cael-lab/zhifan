@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -35,6 +36,8 @@ const PAGE_SIZE = 25;
 const detailHref = (key: string) => `/trades/${encodeURIComponent(key)}`;
 
 export function TradeExplorer({ query }: { query: string }) {
+  const { t: ui, language } = useI18n();
+
   const { data, error, loading, refresh } = useApi<TradeExplorerResponse>(
     `/api/trade-explorer?${query}`,
   );
@@ -55,16 +58,16 @@ export function TradeExplorer({ query }: { query: string }) {
   );
   if (loading && !data)
     return (
-      <div role="status" aria-label="Loading trade explorer">
+      <div role="status" aria-label={ui("Loading trade explorer")}>
         <Skeleton className="h-96" />
       </div>
     );
   if (error || !data)
     return (
       <div role="alert" className="rounded-xl border p-5">
-        <p className="text-sm text-destructive">{error ?? "Unable to load trade explorer."}</p>
+        <p className="text-sm text-destructive">{error ?? ui("Unable to load trade explorer.")}</p>
         <Button onClick={refresh} variant="outline" size="sm" className="mt-3">
-          Try again
+          {ui("Try again")}
         </Button>
       </div>
     );
@@ -91,7 +94,8 @@ export function TradeExplorer({ query }: { query: string }) {
     ) : (
       <span className="tabular-nums">
         {point.y > 0 ? "+" : ""}
-        {point.y.toFixed(2)}R
+        {point.y.toFixed(2)}
+        {ui("R")}
       </span>
     );
   const xValue = (point: PlottedTrade) =>
@@ -109,13 +113,13 @@ export function TradeExplorer({ query }: { query: string }) {
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <caption className="pb-3 text-left text-muted-foreground">
-            All {points.length} comparable trades, newest close first. Each link opens the original
-            trade.
+            {ui("All")} {points.length}{" "}
+            {ui("comparable trades, newest close first. Each link opens the original trade.")}
           </caption>
           <thead>
             <tr className="border-b">
               <th scope="col" className="py-2 pr-3">
-                Trade / closed
+                {ui("Trade / closed")}
               </th>
               <th scope="col" className="px-2 text-right">
                 {xTitle}
@@ -156,10 +160,10 @@ export function TradeExplorer({ query }: { query: string }) {
             disabled={shownPage === 0}
             onClick={() => setPage(shownPage - 1)}
           >
-            Previous
+            {ui("Previous")}
           </Button>
           <p aria-live="polite" className="text-xs text-muted-foreground">
-            Page {shownPage + 1} of {pages}
+            {ui("Page")} {shownPage + 1} {ui("of")} {pages}
           </p>
           <Button
             size="sm"
@@ -167,7 +171,7 @@ export function TradeExplorer({ query }: { query: string }) {
             disabled={shownPage === pages - 1}
             onClick={() => setPage(shownPage + 1)}
           >
-            Next
+            {ui("Next")}
           </Button>
         </div>
       )}
@@ -177,10 +181,10 @@ export function TradeExplorer({ query }: { query: string }) {
     <section className="space-y-4" aria-labelledby="trade-explorer-title" data-trade-explorer>
       <div>
         <h2 id="trade-explorer-title" className="text-lg font-semibold">
-          Trade explorer
+          {ui("Trade explorer")}
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Compare individual trades, not group averages · Active account and filters ·{" "}
+          {ui("Compare individual trades, not group averages · Active account and filters ·")}{" "}
           {data.timeZone}
         </p>
       </div>
@@ -189,7 +193,7 @@ export function TradeExplorer({ query }: { query: string }) {
         currencies={data.currencies}
         onComplete={refresh}
       />
-      <div className="flex flex-wrap gap-2" aria-label="Scatter plot presets">
+      <div className="flex flex-wrap gap-2" aria-label={ui("Scatter plot presets")}>
         {(
           [
             ["durationMinutes", "netPnl", "Holding time"],
@@ -209,7 +213,7 @@ export function TradeExplorer({ query }: { query: string }) {
               setPage(0);
             }}
           >
-            {label}
+            {ui(label)}
           </Button>
         ))}
       </div>
@@ -226,8 +230,8 @@ export function TradeExplorer({ query }: { query: string }) {
                 {blocked
                   ? `${data.points.length} closed trades`
                   : `${points.length} of ${data.points.length} closed trades comparable`}{" "}
-                · One point per trade ·{" "}
-                {excursion ? "Gross excursion estimates; net P&L after fees" : "After fees"}
+                {ui("· One point per trade ·")}{" "}
+                {excursion ? ui("Gross excursion estimates; net P&L after fees") : ui("After fees")}
               </p>
             </div>
             <div className="flex w-full flex-wrap gap-3 sm:w-auto">
@@ -236,7 +240,7 @@ export function TradeExplorer({ query }: { query: string }) {
                   htmlFor="trade-x-axis"
                   className="mb-1.5 block text-xs text-muted-foreground"
                 >
-                  X axis
+                  {ui("X axis")}
                 </label>
                 <OptionSelect
                   id="trade-x-axis"
@@ -247,10 +251,10 @@ export function TradeExplorer({ query }: { query: string }) {
                     setPage(0);
                   }}
                 >
-                  <option value="durationMinutes">Duration (minutes)</option>
-                  <option value="entryMinute">Entry time</option>
-                  <option value="mae">Estimated MAE</option>
-                  <option value="mfe">Estimated MFE</option>
+                  <option value="durationMinutes">{ui("Duration (minutes)")}</option>
+                  <option value="entryMinute">{ui("Entry time")}</option>
+                  <option value="mae">{ui("Estimated MAE")}</option>
+                  <option value="mfe">{ui("Estimated MFE")}</option>
                 </OptionSelect>
               </div>
               <div className="min-w-0 flex-1 sm:w-44">
@@ -258,7 +262,7 @@ export function TradeExplorer({ query }: { query: string }) {
                   htmlFor="trade-y-axis"
                   className="mb-1.5 block text-xs text-muted-foreground"
                 >
-                  Y axis
+                  {ui("Y axis")}
                 </label>
                 <OptionSelect
                   id="trade-y-axis"
@@ -269,10 +273,10 @@ export function TradeExplorer({ query }: { query: string }) {
                     setPage(0);
                   }}
                 >
-                  <option value="netPnl">Net P&L</option>
-                  <option value="realizedR">Realized R</option>
-                  <option value="mae">Estimated MAE</option>
-                  <option value="mfe">Estimated MFE</option>
+                  <option value="netPnl">{ui("Net P&L")}</option>
+                  <option value="realizedR">{ui("Realized R")}</option>
+                  <option value="mae">{ui("Estimated MAE")}</option>
+                  <option value="mfe">{ui("Estimated MFE")}</option>
                 </OptionSelect>
               </div>
             </div>
@@ -281,34 +285,40 @@ export function TradeExplorer({ query }: { query: string }) {
         <CardContent className="space-y-4">
           {data.points.length === 0 ? (
             <div className="py-10 text-center">
-              <h3 className="font-medium">No closed trades in this selection</h3>
+              <h3 className="font-medium">{ui("No closed trades in this selection")}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Change the date range or filters to explore your history. Open positions are
-                excluded.
+                {ui(
+                  "Change the date range or filters to explore your history. Open positions are excluded.",
+                )}
               </p>
             </div>
           ) : blocked ? (
             <p role="note" className="rounded-lg bg-muted/30 p-4 text-sm text-muted-foreground">
-              These trades use different currencies ({data.currencies.join(", ")}). Select accounts
-              with one currency for monetary axes, or use Duration and Realized R to compare
-              risk-normalized outcomes. No currency conversion is applied.
+              {ui("These trades use different currencies (")}
+              {data.currencies.join(", ")}
+              {ui(
+                "). Select accounts with one currency for monetary axes, or use Duration and Realized R to compare risk-normalized outcomes. No currency conversion is applied.",
+              )}
             </p>
           ) : (
             <>
               {points.length < data.points.length && (
                 <p role="note" className="text-xs leading-relaxed text-muted-foreground">
-                  {data.points.length - points.length} trades excluded:{" "}
+                  {data.points.length - points.length} {ui("trades excluded:")}{" "}
                   {y === "realizedR"
-                    ? "realized R requires a valid planned stop-loss and any required contract multiplier; "
+                    ? ui(
+                        "realized R requires a valid planned stop-loss and any required contract multiplier; ",
+                      )
                     : ""}
-                  {excursion ? "MAE/MFE require saved, current market-data estimates. " : ""}Both
-                  axes require valid values and timestamps.
+                  {excursion ? ui("MAE/MFE require saved, current market-data estimates. ") : ""}
+                  {ui("Both axes require valid values and timestamps.")}
                 </p>
               )}
               {y === "realizedR" && (
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  R = net P&L ÷ planned risk from your stop-loss. Uses weighted entry and total
-                  entry quantity; it does not measure maximum intratrade risk.
+                  {ui(
+                    "R = net P&L ÷ planned risk from your stop-loss. Uses weighted entry and total entry quantity; it does not measure maximum intratrade risk.",
+                  )}
                 </p>
               )}
               {points.length >= (excursion ? 1 : 8) ? (
@@ -320,16 +330,16 @@ export function TradeExplorer({ query }: { query: string }) {
                         <span aria-hidden="true" className="text-[var(--profit)]">
                           ●
                         </span>{" "}
-                        Positive net P&L
+                        {ui("Positive net P&L")}
                       </span>
                       <span>
                         <span aria-hidden="true" className="text-[var(--loss)]">
                           ●
                         </span>{" "}
-                        Negative net P&L
+                        {ui("Negative net P&L")}
                       </span>
                       <span>
-                        <span aria-hidden="true">●</span> Zero net P&L
+                        <span aria-hidden="true">●</span> {ui("Zero net P&L")}
                       </span>
                     </span>
                   </div>
@@ -343,8 +353,9 @@ export function TradeExplorer({ query }: { query: string }) {
                   />
                   <p className="text-center text-xs text-muted-foreground">{xTitle}</p>
                   <p className="text-xs text-muted-foreground">
-                    Select a point to inspect its trade. Overlapping points remain individually
-                    accessible in the table.
+                    {ui(
+                      "Select a point to inspect its trade. Overlapping points remain individually accessible in the table.",
+                    )}
                   </p>
                   <div aria-live="polite">
                     {selected && (
@@ -354,7 +365,8 @@ export function TradeExplorer({ query }: { query: string }) {
                             {selected.symbol} · {selected.direction} · {value(selected)}
                           </p>
                           <p className="mt-1 text-xs text-muted-foreground">
-                            {xValue(selected)} · Closed {date.format(new Date(selected.closedAt))}
+                            {xValue(selected)} {ui("· Closed")}{" "}
+                            {date.format(new Date(selected.closedAt))}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
@@ -362,10 +374,10 @@ export function TradeExplorer({ query }: { query: string }) {
                             href={detailHref(selected.key)}
                             className="rounded text-sm underline underline-offset-4"
                           >
-                            Open trade ↗
+                            {ui("Open trade ↗")}
                           </Link>
                           <Button size="sm" variant="ghost" onClick={() => setSelected(null)}>
-                            Dismiss
+                            {ui("Dismiss")}
                           </Button>
                         </div>
                       </div>
@@ -375,13 +387,19 @@ export function TradeExplorer({ query }: { query: string }) {
               ) : (
                 <p className="rounded-lg bg-muted/30 px-4 py-6 text-sm text-muted-foreground">
                   {points.length === 0
-                    ? "No trades have the data required for these axes. Try another axis or adjust your filters."
-                    : "Fewer than 8 comparable trades. Review the exact values below, or widen your filters to reveal a useful scatter plot."}
+                    ? ui(
+                        "No trades have the data required for these axes. Try another axis or adjust your filters.",
+                      )
+                    : ui(
+                        "Fewer than 8 comparable trades. Review the exact values below, or widen your filters to reveal a useful scatter plot.",
+                      )}
                 </p>
               )}
               {points.length > 0 && points.length < 20 && (
                 <p className="text-xs text-muted-foreground">
-                  Small sample: treat apparent patterns cautiously until more trades are available.
+                  {ui(
+                    "Small sample: treat apparent patterns cautiously until more trades are available.",
+                  )}
                 </p>
               )}
             </>
@@ -393,7 +411,7 @@ export function TradeExplorer({ query }: { query: string }) {
         (points.length < 8 ? (
           <Card>
             <CardHeader>
-              <CardTitle>Comparable trades</CardTitle>
+              <CardTitle>{ui("Comparable trades")}</CardTitle>
             </CardHeader>
             {table}
           </Card>
@@ -403,15 +421,15 @@ export function TradeExplorer({ query }: { query: string }) {
             onToggle={(event) => setTableOpen(event.currentTarget.open)}
           >
             <summary className="cursor-pointer rounded-xl px-4 py-3 text-sm font-medium">
-              Explore all {points.length} trades
+              {ui("Explore all")} {points.length} {ui("trades")}
             </summary>
             {tableOpen && table}
           </details>
         ))}
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Duration is elapsed time from first entry to final exit, including overnight hours. Entry
-        time uses the journal timezone; midnight neighbors appear at opposite ends of that axis.
-        Patterns describe this selection, not causation or a recommended holding time.
+        {ui(
+          "Duration is elapsed time from first entry to final exit, including overnight hours. Entry time uses the journal timezone; midnight neighbors appear at opposite ends of that axis. Patterns describe this selection, not causation or a recommended holding time.",
+        )}
       </p>
     </section>
   );

@@ -1,15 +1,21 @@
+"use client";
+
+import { useI18n } from "@/components/language";
 import Link from "next/link";
 import { TriangleAlert } from "lucide-react";
 import type { CurrencyScope } from "@/lib/currencies";
 import { Button } from "@/components/ui/button";
 
 export function CurrencyNotice({ scope }: { scope: CurrencyScope }) {
+  const { t: ui, language } = useI18n();
+
   if (scope.converted)
     return (
       <p className="px-4 py-2 text-xs text-muted-foreground">
-        Trading P&amp;L in {scope.currency} · saved baseline conversion rates.{" "}
+        {ui("Trading P&L in")}
+        {scope.currency} {ui("· saved baseline conversion rates.")}{" "}
         <Link className="underline" href="/settings#currency-conversion">
-          Edit rates
+          {ui("Edit rates")}
         </Link>
       </p>
     );
@@ -26,7 +32,7 @@ export function CurrencyNotice({ scope }: { scope: CurrencyScope }) {
         />
         <div className="space-y-1">
           <p className="font-semibold text-amber-950 dark:text-amber-100">
-            Set up conversion to see your combined dashboard
+            {ui("Set up conversion to see your combined dashboard")}
           </p>
           <p className="text-sm text-amber-900 dark:text-amber-200">
             {scope.missingCurrencies.length
@@ -36,7 +42,7 @@ export function CurrencyNotice({ scope }: { scope: CurrencyScope }) {
         </div>
       </div>
       <Button asChild className="shrink-0 self-start lg:self-auto">
-        <Link href="/settings#currency-conversion">Set up currency conversion</Link>
+        <Link href="/settings#currency-conversion">{ui("Set up currency conversion")}</Link>
       </Button>
     </div>
   );

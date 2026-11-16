@@ -1,4 +1,6 @@
 "use client";
+import { useI18n } from "@/components/language";
+
 import { HoverHint } from "./ui/tooltip";
 
 import Link from "next/link";
@@ -42,6 +44,8 @@ export function CalendarPnl({
   monetary?: boolean;
   runningPnl?: Record<string, CalendarPnlPoint[]>;
 }) {
+  const { t: ui, language } = useI18n();
+
   const maxAbs = Math.max(
     1,
     ...calendar.weeks.flatMap((week) => week.days.map((day) => Math.abs(day?.netPnl ?? 0))),
@@ -50,12 +54,12 @@ export function CalendarPnl({
     <div className="journal-calendar min-w-0 w-full">
       <div className="journal-calendar-grid grid gap-1 text-xs">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((weekday) => (
-          <div key={weekday} className="px-1 pb-1 text-muted-foreground">
-            {weekday}
+          <div key={ui(weekday)} className="px-1 pb-1 text-muted-foreground">
+            {ui(weekday)}
           </div>
         ))}
         <div className="journal-calendar-week-heading px-1 pb-1 text-right text-muted-foreground">
-          Week
+          {ui("Week")}
         </div>
         {calendar.weeks.map((week, weekIndex) => (
           <CalendarWeekRow
@@ -70,14 +74,19 @@ export function CalendarPnl({
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs sm:text-sm">
         <span className="text-muted-foreground">
-          {calendar.tradingDays} trading days {monetary && <>· {calendar.winningDays} green</>}
+          {calendar.tradingDays} {ui("trading days")}{" "}
+          {monetary && (
+            <>
+              · {calendar.winningDays} {ui("green")}
+            </>
+          )}
         </span>
         <span>
-          Month:{" "}
+          {ui("Month:")}{" "}
           {monetary ? (
             <Pnl value={calendar.monthNetPnl} currency={currency} className="font-semibold" />
           ) : (
-            <span className="text-muted-foreground">Multiple currencies</span>
+            <span className="text-muted-foreground">{ui("Multiple currencies")}</span>
           )}
         </span>
       </div>
@@ -98,6 +107,8 @@ function CalendarWeekRow({
   monetary: boolean;
   runningPnl?: Record<string, CalendarPnlPoint[]>;
 }) {
+  const { t: ui, language } = useI18n();
+
   const search = useSearchParams();
   const privacy = usePrivacy();
   return (
@@ -172,7 +183,8 @@ function CalendarWeekRow({
                     )}
                   </div>
                   <div className="journal-calendar-trades text-muted-foreground">
-                    {day.trades} trade{day.trades === 1 ? "" : "s"}
+                    {day.trades} {ui("trade")}
+                    {day.trades === 1 ? "" : ui("s")}
                   </div>
                 </>
               )}
@@ -181,13 +193,17 @@ function CalendarWeekRow({
         );
       })}
       <div className="journal-calendar-week flex rounded-md bg-muted/40 p-1.5">
-        <span className="journal-calendar-week-label text-muted-foreground">Week total</span>
+        <span className="journal-calendar-week-label text-muted-foreground">
+          {ui("Week total")}
+        </span>
         {week.weekTrades > 0 ? (
           <>
             {monetary && (
               <Pnl value={week.weekNetPnl} currency={currency} className="font-medium" />
             )}
-            <span className="text-muted-foreground">{week.weekTrades} trades</span>
+            <span className="text-muted-foreground">
+              {week.weekTrades} {ui("trades")}
+            </span>
           </>
         ) : (
           <span className="text-muted-foreground">–</span>

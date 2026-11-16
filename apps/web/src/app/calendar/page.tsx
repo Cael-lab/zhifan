@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { Suspense, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -23,6 +24,8 @@ export default function CalendarPage() {
 }
 
 function CalendarView() {
+  const { t: ui, language } = useI18n();
+
   const { query, timeZone } = useFilters();
   const [selection, setMonth] = useState<{ year: number; month: number } | null>(null);
   const { data, error, refresh } = useApi<CalendarResponse>(
@@ -40,7 +43,7 @@ function CalendarView() {
   return (
     <div>
       <FilterBar
-        title="Calendar"
+        title={ui("Calendar")}
         actions={
           <div className="flex items-center gap-1">
             <Button
@@ -48,7 +51,7 @@ function CalendarView() {
               size="icon"
               className="h-8 w-8"
               onClick={() => shift(-1)}
-              aria-label="Previous month"
+              aria-label={ui("Previous month")}
             >
               <ChevronLeft />
             </Button>
@@ -64,7 +67,7 @@ function CalendarView() {
               size="icon"
               className="h-8 w-8"
               onClick={() => shift(1)}
-              aria-label="Next month"
+              aria-label={ui("Next month")}
             >
               <ChevronRight />
             </Button>
@@ -79,14 +82,16 @@ function CalendarView() {
               <div role="alert" className="space-y-3 py-6 text-sm">
                 <p className="text-destructive">{error}</p>
                 <Button variant="outline" onClick={refresh}>
-                  Try again
+                  {ui("Try again")}
                 </Button>
               </div>
             ) : data?.currencyScope?.monetary === false ? (
               <div className="space-y-6">
                 {data.currencyGroups?.map((group) => (
                   <div key={group.currency}>
-                    <p className="mb-3 text-sm font-medium">{group.currency} accounts</p>
+                    <p className="mb-3 text-sm font-medium">
+                      {group.currency} {ui("accounts")}
+                    </p>
                     <CalendarPnl calendar={group.calendar} currency={group.currency} />
                   </div>
                 ))}
@@ -99,7 +104,7 @@ function CalendarView() {
                 runningPnl={data.runningPnl}
               />
             ) : (
-              <div role="status" aria-label="Loading calendar">
+              <div role="status" aria-label={ui("Loading calendar")}>
                 <Skeleton className="h-96" />
               </div>
             )}
@@ -115,7 +120,7 @@ function CalendarView() {
         {!data && !error && (
           <div
             role="status"
-            aria-label="Loading performance insights"
+            aria-label={ui("Loading performance insights")}
             className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
           >
             {[0, 1, 2, 3].map((index) => (

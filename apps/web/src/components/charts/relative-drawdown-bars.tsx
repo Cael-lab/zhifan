@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { RelativeDrawdownPoint } from "@luxalgo/journal-core";
@@ -7,6 +8,8 @@ import { tooltipStyle, useVizTokens } from "./tokens";
 import { ChartFrame } from "./chart-frame";
 
 export function RelativeDrawdownBars({ data }: { data: RelativeDrawdownPoint[] }) {
+  const { t: ui, language } = useI18n();
+
   const tokens = useVizTokens();
   const chartData = data.map((point) => ({
     t: point.t,
@@ -22,14 +25,16 @@ export function RelativeDrawdownBars({ data }: { data: RelativeDrawdownPoint[] }
   return (
     <div className="mt-2 border-t pt-3">
       <div className="mb-1 flex items-center justify-between gap-3 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        <span>Relative drawdown</span>
+        <span>{ui("Relative drawdown")}</span>
         <span className="tnum text-loss">
-          {available.length === 0 ? "Initial balance required" : `Max −${fmtPercent(maxDrawdown)}`}
+          {available.length === 0
+            ? ui("Initial balance required")
+            : `Max −${fmtPercent(maxDrawdown)}`}
         </span>
       </div>
       {available.length === 0 ? (
         <div className="flex h-20 items-center justify-center text-xs text-muted-foreground">
-          Set an initial balance to chart relative drawdown.
+          {ui("Set an initial balance to chart relative drawdown.")}
         </div>
       ) : (
         <ChartFrame height={96}>

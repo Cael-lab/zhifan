@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import {
   Bar,
@@ -27,6 +28,8 @@ export function CalendarDailyChart({
   currency: string;
   onInspect: (date: string) => void;
 }) {
+  const { t: ui, language } = useI18n();
+
   const tokens = useVizTokens();
   const privacy = usePrivacy();
   if (!tokens) return <div className="h-60" />;
@@ -34,7 +37,9 @@ export function CalendarDailyChart({
     <ChartFrame height={240}>
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
-          aria-label="Daily net profit and loss. Exact values and trade links are available in the table below."
+          aria-label={ui(
+            "Daily net profit and loss. Exact values and trade links are available in the table below.",
+          )}
           data={data}
           margin={{ top: 12, right: 8, bottom: 4, left: 0 }}
           onClick={(state) => {

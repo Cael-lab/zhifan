@@ -1,4 +1,5 @@
 "use client";
+import { useI18n } from "@/components/language";
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
@@ -14,6 +15,8 @@ import {
 } from "./ui/dialog";
 
 export function AddTradeDialog({ onSaved }: { onSaved: () => void }) {
+  const { t: ui, language } = useI18n();
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,14 +24,16 @@ export function AddTradeDialog({ onSaved }: { onSaved: () => void }) {
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="h-3.5 w-3.5" />
-          记录交易
+          {ui("记录交易")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>记录一笔交易</DialogTitle>
+          <DialogTitle>{ui("记录一笔交易")}</DialogTitle>
           <DialogDescription>
-            选择账户并填写每次买卖的时间、价格、数量与费用。支持只记录入场，也支持分批加仓、减仓和出场。
+            {ui(
+              "选择账户并填写每次买卖的时间、价格、数量与费用。支持只记录入场，也支持分批加仓、减仓和出场。",
+            )}
           </DialogDescription>
         </DialogHeader>
         <ManualTradeEntry

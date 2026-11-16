@@ -2,10 +2,14 @@
 
 import { DayPicker, type DayPickerProps } from "react-day-picker";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { enUS, zhCN } from "react-day-picker/locale";
+import { useI18n } from "@/components/language";
 
 export function Calendar(props: DayPickerProps) {
+  const { language } = useI18n();
   return (
     <DayPicker
+      locale={language === "en" ? enUS : zhCN}
       showOutsideDays
       fixedWeeks
       className="journal-date-calendar"
