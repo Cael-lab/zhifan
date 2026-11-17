@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { tenantCacheKey } from "../tenant";
 import { MarketDataError } from "./provider";
 
 type Job = { host: string; signal: AbortSignal; start: () => void; reject: () => void };
@@ -75,7 +76,9 @@ export function createMarketTransport({ minIntervalMs = 350 } = {}) {
   ): Promise<unknown> => {
     signal?.throwIfAborted();
     const host = new URL(url).host;
-    const identity = JSON.stringify(Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)));
+    const identity =
+      tenantCacheKey() +
+      JSON.stringify(Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)));
     const scope = createHash("sha256")
       .update(host + identity)
       .digest("hex");

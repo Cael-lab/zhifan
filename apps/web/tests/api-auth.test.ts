@@ -1,41 +1,35 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { expect, it, vi } from "vitest";
+vi.unmock("@/server/identity");
 import { handler, ok } from "../src/server/api";
-import { sessionToken, verifyPassword } from "../src/server/auth";
-
-const session = vi.hoisted(() => ({ token: undefined as string | undefined }));
-vi.mock("next/headers", () => ({
-  cookies: async () => ({ get: () => (session.token ? { value: session.token } : undefined) }),
-}));
-afterEach(() => {
-  vi.unstubAllEnvs();
-  session.token = undefined;
+it("accepts the browser Host when Next normalizes the internal request URL", async () => {
+  const route = handler((_request: Request) => ok({ saved: true }), { public: true });
+  const request = new Request("http://localhost:3001/api/auth", {
+    method: "POST",
+    headers: { host: "127.0.0.1:3001", origin: "http://127.0.0.1:3001" },
+  });
+  expect((await route(request)).status).toBe(200);
 });
-
-describe("optional journal password protection", () => {
-  it("permits local access when no password is configured", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "");
-    expect((await handler(() => ok({ data: true }))()).status).toBe(200);
-  });
-  it("rejects both missing and forged cookies before executing any handler", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "test-password");
-    const action = vi.fn(() => ok({ secret: true }));
-    for (const token of [undefined, "forged", "0".repeat(64)]) {
-      session.token = token;
-      expect((await handler(action)()).status).toBe(401);
-    }
-    expect(action).not.toHaveBeenCalled();
-  });
-  it("accepts signed sessions and invalidates them when the password changes", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "test-password");
-    session.token = sessionToken();
-    expect((await handler(() => ok({ data: true }))()).status).toBe(200);
-    vi.stubEnv("JOURNAL_PASSWORD", "new-password");
-    expect((await handler(() => ok({ data: true }))()).status).toBe(401);
-  });
-  it("allows the login endpoint to verify a password without a session", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "test-password");
-    expect(verifyPassword("test-password")).toBe(true);
-    expect(verifyPassword("wrong-password")).toBe(false);
-    expect((await handler(() => ok({ login: true }), { public: true })()).status).toBe(200);
-  });
+it("marks successful API responses as private and non-cacheable", () => {
+  expect(ok({ value: true }).headers.get("Cache-Control")).toBe("private, no-store");
+});
+it("allows only explicitly public handlers without a session", async () => {
+  const action = vi.fn((_request: Request) => ok({ public: true }));
+  expect(
+    (await handler(action, { public: true })(new Request("http://localhost/api/auth"))).status,
+  ).toBe(200);
+  expect(action).toHaveBeenCalledOnce();
+});
+it("checks origin on public login mutations too", async () => {
+  const action = vi.fn((_request: Request) => ok({ public: true }));
+  expect(
+    (
+      await handler(action, { public: true })(
+        new Request("http://localhost/api/auth", {
+          method: "POST",
+          headers: { origin: "https://other.example" },
+        }),
+      )
+    ).status,
+  ).toBe(403);
+  expect(action).not.toHaveBeenCalled();
 });

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { LanguageProvider } from "@/components/language";
+import { SessionBoundary } from "@/components/session-boundary";
 
 export const metadata: Metadata = {
   description: "个人交易复盘、知识点案例库与日记。基于 LuxAlgo Trade Journal，本机保存。",
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ThemeProvider>
               <PrivacyProvider>
                 <LanguageProvider>
-                  <Shell>{children}</Shell>
+                  <SessionBoundary>
+                    <Shell>{children}</Shell>
+                  </SessionBoundary>
                 </LanguageProvider>
               </PrivacyProvider>
             </ThemeProvider>

@@ -1,3 +1,4 @@
+import * as identity from "../src/server/identity";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -167,8 +168,8 @@ describe("AI provider settings", () => {
     });
   });
 
-  it("requires the journal session for reads and writes when a password is configured", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "fixture-password");
+  it("requires an authenticated account for reads and writes", async () => {
+    vi.spyOn(identity, "resolveUser").mockReturnValue(null);
     expect((await GET()).status).toBe(401);
     expect((await save({ openaiKey: "fixture-key" })).status).toBe(401);
     expect(getAiKey("openai")).toBeNull();

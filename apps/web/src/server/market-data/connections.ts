@@ -1,4 +1,5 @@
 import { decryptJson, encryptJson } from "@/server/crypto";
+import { ownerEnvironment } from "../tenant";
 import { deleteSetting, getSetting, setSetting } from "@/server/settings";
 import type { MarketConnection } from "@/lib/market-data";
 import { providerInfo } from "@/lib/market-providers";
@@ -24,11 +25,12 @@ export const providerFor = (id: string) => {
 const settingKey = (id: string) => `marketData:${id}:keyEnc`;
 const environment = (id: string) => {
   const fields = providerInfo(id)!.fields;
-  const managed = fields.some((field) => process.env[field.environmentKey]?.trim());
+  const managed =
+    ownerEnvironment() && fields.some((field) => process.env[field.environmentKey]?.trim());
   const values = Object.fromEntries(
     fields.map((field) => [
       field.key,
-      process.env[field.environmentKey]?.trim() || field.defaultValue || "",
+      (ownerEnvironment() && process.env[field.environmentKey]?.trim()) || field.defaultValue || "",
     ]),
   );
   return { managed, values, complete: fields.every((field) => Boolean(values[field.key])) };

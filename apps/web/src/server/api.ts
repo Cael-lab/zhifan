@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { AUTH_COOKIE, passwordConfigured, verifySession } from "./auth";
+import { IdentityError, resolveUser } from "./identity";
+import { tenantScope } from "./tenant";
 
 export class RequestError extends Error {}
 export function requireValue(condition: unknown, message: string): asserts condition {
@@ -24,16 +24,35 @@ export const handler =
   ) =>
   async (...args: A): Promise<Response> => {
     try {
-      if (!options.public && passwordConfigured()) {
-        const token = (await cookies()).get(AUTH_COOKIE)?.value;
-        if (!verifySession(token)) return bad("Unauthorized", 401);
+      const request = args[0] instanceof Request ? args[0] : undefined;
+      if (request && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+        const origin = request.headers.get("origin");
+        // Next can normalize request.url to localhost when bound to 127.0.0.1.
+        // The HTTP Host remains the browser-visible authority.
+        const expectedOrigin = new URL(request.url);
+        expectedOrigin.host = request.headers.get("host") ?? expectedOrigin.host;
+        if (
+          (origin && origin !== expectedOrigin.origin) ||
+          request.headers.get("sec-fetch-site") === "cross-site"
+        )
+          return bad("Cross-site request rejected", 403);
       }
-      return await fn(...args);
+      if (options.public) return await fn(...args);
+      const user = resolveUser(request);
+      if (!user) return bad("Unauthorized", 401);
+      return await tenantScope.run(user, () => fn(...args));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Internal error";
       return NextResponse.json(
         { error: message },
-        { status: error instanceof RequestError ? 400 : 500 },
+        {
+          status:
+            error instanceof IdentityError
+              ? error.status
+              : error instanceof RequestError
+                ? 400
+                : 500,
+        },
       );
     }
   };

@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { ownerEnvironment } from "./tenant";
 import { db, settings } from "@/db";
 import { decryptJson, encryptJson } from "./crypto";
 import { EMPTY_DEFAULTS, type JournalDefaults } from "@/lib/journal-defaults";
@@ -59,6 +60,7 @@ export const getMultipliers = (): Record<string, number> => {
 };
 
 export const aiKeyEnvironment = (provider: AiProvider): string | null => {
+  if (!ownerEnvironment()) return null;
   const variable = AI_KEY_VARIABLES[provider];
   return (variable && process.env[variable]?.trim()) || null;
 };

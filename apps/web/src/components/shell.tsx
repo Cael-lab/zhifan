@@ -47,6 +47,7 @@ const NAV = [
 ] as const;
 
 const NAV_SETUP = [
+  { href: "/account", label: "账号与邀请", icon: Wallet },
   { href: "/import", label: "导入与录入", icon: Import },
   { href: "/accounts", label: "交易账户", icon: Wallet },
   { href: "/personal-backup", label: "数据备份", icon: BookText },
@@ -151,7 +152,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
     if (value) filterQuery.set(key, value);
   }
   if (search.get("range")) filterQuery.set("range", search.get("range")!);
-  if (pathname === "/login")
+  if (pathname === "/login" || pathname === "/register")
     return (
       <>
         <div className="fixed right-4 top-4 z-50">

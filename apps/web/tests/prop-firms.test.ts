@@ -1,3 +1,4 @@
+import * as identity from "../src/server/identity";
 import { afterAll, beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -491,7 +492,7 @@ describe("generic cash imports and API boundaries", () => {
       (await POST(request(account({ revision: 3, name: "Stale", reason: "Edit" })))).status,
     ).toBe(409);
     expect((await POST(request({ padding: "a".repeat(33000) }))).status).toBe(400);
-    vi.stubEnv("JOURNAL_PASSWORD", "fixture");
+    vi.spyOn(identity, "resolveUser").mockReturnValue(null);
     expect((await GET(new Request("http://localhost/api/prop-firms"))).status).toBe(401);
     expect((await POST(request(account()))).status).toBe(401);
     expect((await csvPost(request({ action: "preview", content: csv }))).status).toBe(401);

@@ -1,3 +1,4 @@
+import * as identity from "../src/server/identity";
 import { createMarketTransport, marketTransport } from "../src/server/market-data/transport";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -478,7 +479,7 @@ describe("market data credential lifecycle", () => {
     expect(fetcher.mock.calls).toHaveLength(1);
   });
   it("uses the app's authentication gate for reads and writes", async () => {
-    vi.stubEnv("JOURNAL_PASSWORD", "fixture-password");
+    vi.spyOn(identity, "resolveUser").mockReturnValue(null);
     expect((await GET()).status).toBe(401);
     expect((await listCsv()).status).toBe(401);
     expect((await csvRequest(request({ action: "remove", id: "anything" }))).status).toBe(401);
