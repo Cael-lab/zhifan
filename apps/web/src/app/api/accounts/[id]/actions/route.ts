@@ -3,6 +3,7 @@ import { accounts, db, executions, trades } from "@/db";
 import { bad, handler, ok, requireValue } from "@/server/api";
 import { nowIso } from "@/server/ids";
 import { rebuildAccount } from "@/server/rebuild";
+import { reconcilePersonalTradeLinks } from "@/server/personal-trade-links";
 import { syncAccount } from "@/server/sync";
 import { ibkrTransferTimeZone } from "@/server/ibkr-sync-timezone";
 
@@ -29,7 +30,14 @@ export const POST = handler(async (request: Request, { params }: Params) => {
       return ok({ archived: false });
     case "clear":
       db.transaction((tx) => {
+        const removed = tx
+          .select({ key: trades.key })
+          .from(trades)
+          .where(eq(trades.accountId, id))
+          .all()
+          .map((t) => t.key);
         tx.delete(trades).where(eq(trades.accountId, id)).run();
+        reconcilePersonalTradeLinks(db.$client, removed);
         tx.delete(executions).where(eq(executions.accountId, id)).run();
         tx.update(accounts).set({ ibkrSyncTimeZone: null }).where(eq(accounts.id, id)).run();
       });
@@ -43,63 +51,75 @@ export const POST = handler(async (request: Request, { params }: Params) => {
       const destination = db.select().from(accounts).where(eq(accounts.id, destinationId)).get();
       if (!destination) return bad("Destination account not found", 404);
 
-      // Remember annotations before the move; trade keys are account-prefixed,
-      // so after the rebuild they re-anchor under the destination's prefix.
-      const sourceTrades = db.select().from(trades).where(eq(trades.accountId, id)).all();
-      db.transaction(
-        (tx) => {
-          const currentSource = tx.select().from(accounts).where(eq(accounts.id, id)).get();
-          const currentDestination = tx
-            .select()
-            .from(accounts)
-            .where(eq(accounts.id, destinationId))
-            .get();
-          requireValue(currentSource && currentDestination, "Account not found.");
-          const timeZone = ibkrTransferTimeZone(currentSource, currentDestination);
-          if (timeZone !== undefined) {
-            tx.update(accounts)
-              .set({ ibkrSyncTimeZone: timeZone })
-              .where(eq(accounts.id, destinationId))
+      return db.transaction(
+        () => {
+          // Remember annotations before the move; trade keys are account-prefixed,
+          // so after the rebuild they re-anchor under the destination's prefix.
+          const sourceTrades = db.select().from(trades).where(eq(trades.accountId, id)).all();
+          db.transaction(
+            (tx) => {
+              const currentSource = tx.select().from(accounts).where(eq(accounts.id, id)).get();
+              const currentDestination = tx
+                .select()
+                .from(accounts)
+                .where(eq(accounts.id, destinationId))
+                .get();
+              requireValue(currentSource && currentDestination, "Account not found.");
+              const timeZone = ibkrTransferTimeZone(currentSource, currentDestination);
+              if (timeZone !== undefined) {
+                tx.update(accounts)
+                  .set({ ibkrSyncTimeZone: timeZone })
+                  .where(eq(accounts.id, destinationId))
+                  .run();
+              }
+              tx.update(executions)
+                .set({ accountId: destinationId })
+                .where(eq(executions.accountId, id))
+                .run();
+              tx.delete(trades).where(eq(trades.accountId, id)).run();
+              tx.update(accounts).set({ ibkrSyncTimeZone: null }).where(eq(accounts.id, id)).run();
+            },
+            { behavior: "immediate" },
+          );
+          rebuildAccount(destinationId);
+
+          for (const source of sourceTrades) {
+            const hasAnnotations =
+              source.notes ||
+              source.tagsJson ||
+              source.mistakesJson ||
+              source.playbookId ||
+              source.rating !== null ||
+              source.stopLoss !== null ||
+              source.profitTarget !== null ||
+              source.reviewedAt;
+            if (!hasAnnotations) continue;
+            const newKey = destinationId + source.key.slice(id.length);
+            db.update(trades)
+              .set({
+                notes: source.notes,
+                tagsJson: source.tagsJson,
+                mistakesJson: source.mistakesJson,
+                playbookId: source.playbookId,
+                rating: source.rating,
+                stopLoss: source.stopLoss,
+                profitTarget: source.profitTarget,
+                reviewedAt: source.reviewedAt,
+              })
+              .where(eq(trades.key, newKey))
               .run();
           }
-          tx.update(executions)
-            .set({ accountId: destinationId })
-            .where(eq(executions.accountId, id))
-            .run();
-          tx.delete(trades).where(eq(trades.accountId, id)).run();
-          tx.update(accounts).set({ ibkrSyncTimeZone: null }).where(eq(accounts.id, id)).run();
+          db.$client.transaction(() =>
+            reconcilePersonalTradeLinks(
+              db.$client,
+              sourceTrades.map((t) => t.key),
+              new Map(sourceTrades.map((t) => [t.key, destinationId + t.key.slice(id.length)])),
+            ),
+          )();
+          return ok({ transferred: true });
         },
         { behavior: "immediate" },
       );
-      rebuildAccount(destinationId);
-
-      for (const source of sourceTrades) {
-        const hasAnnotations =
-          source.notes ||
-          source.tagsJson ||
-          source.mistakesJson ||
-          source.playbookId ||
-          source.rating !== null ||
-          source.stopLoss !== null ||
-          source.profitTarget !== null ||
-          source.reviewedAt;
-        if (!hasAnnotations) continue;
-        const newKey = destinationId + source.key.slice(id.length);
-        db.update(trades)
-          .set({
-            notes: source.notes,
-            tagsJson: source.tagsJson,
-            mistakesJson: source.mistakesJson,
-            playbookId: source.playbookId,
-            rating: source.rating,
-            stopLoss: source.stopLoss,
-            profitTarget: source.profitTarget,
-            reviewedAt: source.reviewedAt,
-          })
-          .where(eq(trades.key, newKey))
-          .run();
-      }
-      return ok({ transferred: true });
     }
     default:
       return bad("Unknown action");

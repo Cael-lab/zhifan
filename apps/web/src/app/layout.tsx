@@ -9,7 +9,6 @@ import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import { LanguageProvider } from "@/components/language";
 
 export const metadata: Metadata = {
-  title: "知返 · 交易与学习",
   description: "个人交易复盘、知识点案例库与日记。基于 LuxAlgo Trade Journal，本机保存。",
 };
 

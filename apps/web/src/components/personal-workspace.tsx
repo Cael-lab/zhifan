@@ -601,10 +601,7 @@ export function PersonalEditor({
           <p className="mb-2 text-[10px] tracking-widest text-muted-foreground">
             {ui("PERSONAL / EDITOR")}
           </p>
-          <h1 className="text-2xl font-semibold">
-            {entry ? ui("编辑") : ui("新建")}
-            {ui(labels[kind]!)}
-          </h1>
+          <h1 className="text-2xl font-semibold">{ui((entry ? "编辑" : "新建") + labels[kind])}</h1>
         </div>
         <div className="flex gap-2">
           <Button

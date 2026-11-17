@@ -3,6 +3,7 @@ import { buildRoundTrips, type Execution, type ProfitCalcMethod } from "@luxalgo
 import { db, executions, trades, accounts } from "@/db";
 import { getMultipliers, getJournalDefaults } from "./settings";
 import { defaultRisk } from "@/lib/journal-defaults";
+import { reconcilePersonalTradeLinks } from "./personal-trade-links";
 
 /**
  * Rebuild the materialized round trips for an account from its executions.
@@ -84,5 +85,6 @@ export const rebuildAccount = (accountId: string): void => {
         )
         .run();
     }
+    reconcilePersonalTradeLinks(db.$client, vanished);
   });
 };

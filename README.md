@@ -1,3 +1,13 @@
+# 知返 / Zhifan
+
+Personal trading reviews, learning notes with image cases, and a daily diary, with Chinese and English interfaces. Built on LuxAlgo Trade Journal; this is an independent extension, not an official LuxAlgo product.
+
+**[中文使用说明与启动步骤](README.zh-CN.md)** · **[验收记录](docs/acceptance-2026-11.md)**
+
+On Windows, run `start-zhifan.cmd`, then open <http://127.0.0.1:3000>. Your SQLite database and credentials stay local and are excluded from Git. The original project documentation and attribution follow below.
+
+---
+
 <div align="center">
 
 <img src=".github/assets/banner.svg" alt="Trade Journal: the open-source trade journal" width="100%" />

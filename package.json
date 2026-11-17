@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LuxAlgo/trade-journal.git"
+    "url": "git+https://github.com/Cael-lab/zhifan.git"
   },
   "engines": {
     "node": ">=22"

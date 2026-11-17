@@ -50,6 +50,7 @@ it("switches interface language without remounting or translating user text and 
   expect(status.value).toBe("观察验证中");
   expect(status.options[0]?.text).toBe("Under observation");
   expect(document.documentElement.lang).toBe("en");
+  expect(document.title).toBe("Zhifan · Trading & Learning");
   expect(localStorage.getItem(LANGUAGE_KEY)).toBe("en");
 });
 it("restores the saved preference and synchronizes changes from another tab", async () => {
@@ -61,6 +62,7 @@ it("restores the saved preference and synchronizes changes from another tab", as
   );
   expect(host.querySelector("h1")?.textContent).toBe("交易学习");
   expect(document.documentElement.lang).toBe("zh-CN");
+  expect(document.title).toBe("知返 · 交易与学习");
 });
 it("uses a safe preference fallback and preserves unknown source text", () => {
   expect(languagePreference("fr")).toBe("zh-CN");

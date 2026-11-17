@@ -39,7 +39,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     document.documentElement.lang = language;
-    document.title = language === "en" ? "Zhifan · Trading & Learning" : "知返 · 交易与学习";
   }, [language]);
   const setLanguage = useCallback((next: Language) => {
     setValue(next);
@@ -58,7 +57,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     () => ({ language, ready, setLanguage, error, t: (text: string) => translate(text, language) }),
     [language, ready, setLanguage, error],
   );
-  return <Context.Provider value={value}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={value}>
+      <title>{language === "en" ? "Zhifan · Trading & Learning" : "知返 · 交易与学习"}</title>
+      {children}
+    </Context.Provider>
+  );
 }
 export function LanguageSwitch({
   compact = false,
